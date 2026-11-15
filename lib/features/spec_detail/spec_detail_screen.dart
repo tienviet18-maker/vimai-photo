@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../core/spec_l10n.dart';
 import '../../core/specs/photo_spec.dart';
 import '../../l10n/app_localizations.dart';
+import '../capture/capture_screen.dart';
 
 /// Shows what the chosen document needs before the camera opens.
-/// The camera itself arrives in phase 1.
 class SpecDetailScreen extends StatelessWidget {
   const SpecDetailScreen({super.key, required this.spec});
 
@@ -70,8 +70,10 @@ class SpecDetailScreen extends StatelessWidget {
           FilledButton.icon(
             icon: const Icon(Icons.photo_camera_outlined),
             label: Text(l.startCapture),
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l.captureComingSoon)),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => CaptureScreen(spec: spec),
+              ),
             ),
           ),
         ],
