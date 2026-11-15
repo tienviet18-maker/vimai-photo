@@ -242,5 +242,22 @@
   "detailsLabel": "Requirements",
   "autoMode": "Auto",
   "manualMode": "Manual",
-  "closeLabel": "Close"
+  "closeLabel": "Close",
+  "rcHeadMeasured": "Crown to chin {mm} mm (rule {lo}–{hi})",
+  "@rcHeadMeasured": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      },
+      "lo": {
+        "type": "String"
+      },
+      "hi": {
+        "type": "String"
+      }
+    }
+  },
+  "bgStrictWarning": "The office may refuse a photo with an edited background. Shooting against a plain white wall is safest.",
+  "bgStrictAccept": "Replace background anyway",
+  "noFaceEditBadge": "Face not retouched. Only background and light are corrected."
 }

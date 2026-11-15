@@ -128,5 +128,9 @@
   "detailsLabel": "Yêu cầu",
   "autoMode": "Tự chụp",
   "manualMode": "Thủ công",
-  "closeLabel": "Đóng"
+  "closeLabel": "Đóng",
+  "rcHeadMeasured": "Đỉnh tóc đến cằm {mm} mm (chuẩn {lo}–{hi})",
+  "bgStrictWarning": "Cơ quan cấp giấy tờ này có thể từ chối ảnh đã xử lý nền. Chụp trước tường trắng trơn là an toàn nhất.",
+  "bgStrictAccept": "Vẫn đổi nền",
+  "noFaceEditBadge": "Không chỉnh khuôn mặt. Chỉ sửa nền và ánh sáng."
 }

@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/locale/locale_controller.dart';
 import '../../l10n/app_localizations.dart';
+import '../debug/test_set_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, required this.localeController});
@@ -45,6 +47,18 @@ class SettingsScreen extends StatelessWidget {
                     value: locale.languageCode,
                     title: Text(_nativeNames[locale.languageCode]!),
                   ),
+                // Developer tool: batch-process a set of photos and show the
+                // measurements. Not shown in store builds.
+                if (!kReleaseMode) ...[
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.science_outlined),
+                    title: const Text('Test set (developer)'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => const TestSetScreen()),
+                    ),
+                  ),
+                ],
               ],
             ),
           );

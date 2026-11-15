@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 
 import '../core/photo/crop_geometry.dart';
 import '../core/photo/photo_analysis.dart';
+import '../core/photo/review_checks.dart';
 
 /// Thrown when the platform has no implementation yet (Android for now).
 class PhotoNativeUnavailable implements Exception {
@@ -28,28 +29,43 @@ class PhotoNative {
     return PhotoAnalysis.fromMap(m!);
   }
 
-  /// Renders the photo at its exact print size and returns a JPEG path.
-  Future<String> render({
+  /// Renders the photo at its exact print size: light and colour corrected,
+  /// background replaced when asked, then measured on the result.
+  Future<RenderResult> render({
     required String path,
+    required PhotoAnalysis analysis,
     required CropRect crop,
     required int outWidth,
     required int outHeight,
+    required double heightMm,
     required int backgroundArgb,
     required bool replaceBackground,
+    required EditLevel level,
     double exposure = 0,
     int dpi = 300,
   }) async {
-    final out = await _call<String>('render', {
+    final out = await _call<Map<Object?, Object?>>('render', {
       'path': path,
       'crop': crop.toMap(),
       'outWidth': outWidth,
       'outHeight': outHeight,
+      'heightMm': heightMm,
       'background': backgroundArgb,
       'replaceBackground': replaceBackground,
+      'level': level.name,
       'exposure': exposure,
       'dpi': dpi,
+      if (analysis.hasFace)
+        'face': {
+          'left': analysis.faceLeft,
+          'top': analysis.faceTop,
+          'width': analysis.faceWidth,
+          'height': analysis.faceHeight,
+        },
+      if (analysis.hasFace) 'crownY': crownOf(analysis),
+      if (analysis.hasFace) 'chinY': chinOf(analysis),
     });
-    return out!;
+    return RenderResult.fromMap(out!);
   }
 
   /// Lays copies of [photoPath] on a sheet. Slots are pixel positions.
@@ -82,7 +98,13 @@ class PhotoNative {
   Future<void> share(String path) => _call<bool>('share', {'path': path});
 
   /// Opens the system photo picker. Null when the user cancels.
-  Future<String?> pickPhoto() => _call<String>('pickPhoto');
+  Future<String?> pickPhoto() => _call<String>('pickPhoto', {'limit': 1});
+
+  /// Picks several photos (for the test set). Empty when cancelled.
+  Future<List<String>> pickPhotos() async {
+    final list = await _call<List<Object?>>('pickPhoto', {'limit': 0});
+    return [for (final p in list ?? const <Object?>[]) p! as String];
+  }
 
   Future<void> clearCache() => _call<void>('clearCache');
 }

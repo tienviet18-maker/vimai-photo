@@ -40,7 +40,7 @@ class ReviewScreen extends StatefulWidget {
   State<ReviewScreen> createState() => _ReviewScreenState();
 }
 
-enum _Tab { background, frame, light, outfit }
+enum _Tab { background, frame, light }
 
 class _ReviewScreenState extends State<ReviewScreen> {
   final _analyses = <String, PhotoAnalysis>{};
@@ -53,12 +53,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _showChecks = false;
 
   String? _rendered;
+  RenderResult? _render;
   ReviewResult? _result;
+
+  /// Strict documents keep their background unless the user accepts the
+  /// warning that the office may refuse an edited background.
+  bool _strictBackgroundAccepted = false;
   String? _error;
   bool _busy = false;
   int _ticket = 0;
 
-  bool get _noEdit => forbidsEdits(widget.spec);
+  EditLevel get _level => editLevelFor(widget.spec);
+  bool get _replaceBackground =>
+      _level != EditLevel.strict || _strictBackgroundAccepted;
 
   @override
   void initState() {
@@ -91,21 +98,26 @@ class _ReviewScreenState extends State<ReviewScreen> {
       final px = widget.spec.pixelSize();
       final out = await widget.native.render(
         path: path,
+        analysis: analysis,
         crop: crop,
         outWidth: px.width,
         outHeight: px.height,
+        heightMm: widget.spec.heightMm,
         backgroundArgb: _bg.swatch.toARGB32(),
-        replaceBackground: !_noEdit,
-        exposure: _noEdit ? 0 : _exposure,
+        replaceBackground: _replaceBackground,
+        level: _level,
+        exposure: _exposure,
       );
       if (ticket != _ticket || !mounted) return;
       setState(() {
-        _rendered = out;
+        _rendered = out.path;
+        _render = out;
         _result = reviewPhoto(
           analysis,
           widget.spec,
           metrics: _metrics,
-          replaceBackground: !_noEdit,
+          render: out,
+          replaceBackground: _replaceBackground,
         );
       });
     } on PhotoNativeUnavailable {
@@ -172,11 +184,16 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 if (_result != null)
                   _ChecksBanner(
                     result: _result!,
+                    render: _render,
                     spec: spec,
                     docName: spec.nameFor(lang),
                     expanded: _showChecks,
                     onToggle: () => setState(() => _showChecks = !_showChecks),
                   ),
+                if (isOfficialDocument(spec)) ...[
+                  const SizedBox(height: 10),
+                  _NoRetouchBadge(text: l.noFaceEditBadge),
+                ],
                 const SizedBox(height: 14),
                 _TabBar(
                   current: _tab,
@@ -229,7 +246,26 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _tabBody(AppLocalizations l) {
     switch (_tab) {
       case _Tab.background:
-        if (_noEdit) return LockNote(text: l.noEditNote);
+        if (_level == EditLevel.strict && !_strictBackgroundAccepted) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LockNote(text: l.bgStrictWarning),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                  onPressed: () {
+                    setState(() => _strictBackgroundAccepted = true);
+                    _process();
+                  },
+                  child: Text(l.bgStrictAccept),
+                ),
+              ),
+            ],
+          );
+        }
         return Wrap(
           spacing: 16,
           runSpacing: 12,
@@ -281,7 +317,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
           ],
         );
       case _Tab.light:
-        if (_noEdit) return LockNote(text: l.noEditNote);
         return _SliderRow(
           label: l.tabLight,
           value: _exposure,
@@ -289,28 +324,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
           max: 0.6,
           onChanged: (v) => setState(() => _exposure = v),
           onChangeEnd: (_) => _process(),
-        );
-      case _Tab.outfit:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l.outfitSoon,
-                    style: const TextStyle(fontSize: 13, color: AppColors.muted),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const ProTag(),
-              ],
-            ),
-            if (isOfficialDocument(widget.spec)) ...[
-              const SizedBox(height: 10),
-              LockNote(text: l.lockedOfficial),
-            ],
-          ],
         );
     }
   }
@@ -493,6 +506,7 @@ class _Thumb extends StatelessWidget {
 class _ChecksBanner extends StatelessWidget {
   const _ChecksBanner({
     required this.result,
+    required this.render,
     required this.spec,
     required this.docName,
     required this.expanded,
@@ -500,6 +514,7 @@ class _ChecksBanner extends StatelessWidget {
   });
 
   final ReviewResult result;
+  final RenderResult? render;
   final PhotoSpec spec;
   final String docName;
   final bool expanded;
@@ -507,13 +522,20 @@ class _ChecksBanner extends StatelessWidget {
 
   String _label(AppLocalizations l, ReviewCheck c) => switch (c) {
         ReviewCheck.size => l.rcSize(formatMm(spec.widthMm), formatMm(spec.heightMm)),
-        ReviewCheck.head => l.rcHead,
+        ReviewCheck.head => _headLabel(l),
         ReviewCheck.background => l.rcBackground,
         ReviewCheck.onlyYou => l.rcOnlyYou,
         ReviewCheck.straight => l.rcStraight,
         ReviewCheck.eyes => l.rcEyes,
         ReviewCheck.light => l.rcLight,
       };
+
+  String _headLabel(AppLocalizations l) {
+    final mm = render?.headMm;
+    if (mm == null) return l.rcHead;
+    final (lo, hi) = headRangeMm(spec);
+    return l.rcHeadMeasured(mm.toStringAsFixed(1), formatMm(lo), formatMm(hi));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -605,7 +627,6 @@ class _TabBar extends StatelessWidget {
       _Tab.background: l.tabBackground,
       _Tab.frame: l.tabFrame,
       _Tab.light: l.tabLight,
-      _Tab.outfit: l.tabOutfit,
     };
     return Container(
       padding: const EdgeInsets.all(4),
@@ -737,6 +758,35 @@ class _SliderRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NoRetouchBadge extends StatelessWidget {
+  const _NoRetouchBadge({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.primarySoft,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.verified_user_outlined, size: 18, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12, height: 1.35, color: AppColors.primaryDark),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

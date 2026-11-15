@@ -128,5 +128,9 @@
   "detailsLabel": "条件",
   "autoMode": "自動",
   "manualMode": "手動",
-  "closeLabel": "閉じる"
+  "closeLabel": "閉じる",
+  "rcHeadMeasured": "頭頂からあごまで {mm} mm（規格 {lo}〜{hi}）",
+  "bgStrictWarning": "この書類では、背景を加工した写真が受け付けられない場合があります。白い無地の壁の前で撮るのがいちばん確実です。",
+  "bgStrictAccept": "それでも背景を変える",
+  "noFaceEditBadge": "顔は修整していません。背景と明るさのみ補正しています。"
 }

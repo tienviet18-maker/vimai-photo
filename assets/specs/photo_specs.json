@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-15",
+  "updated": "2026-11-16",
   "specs": [
     {
       "id": "jp_residence",
@@ -13,7 +13,8 @@
       "icon": "badge",
       "heightMm": 40,
       "widthMm": 30,
-      "headHeightMm": null,
+      "headHeightMm": 25,
+      "headToleranceMm": 3,
       "topMarginMm": null,
       "backgrounds": ["white", "lightBlue"],
       "validityMonths": 6,
@@ -21,7 +22,7 @@
       "pro": false,
       "verified": true,
       "sourceUrl": "https://www.moj.go.jp/isa/applications/status/photo_info_00002.html",
-      "notes": "Head dimensions are only in the figure on the ISA page; fill headHeightMm/topMarginMm after reading the figure."
+      "notes": "Head 22-28 mm crown (incl. hair) to chin, per SOKENDAI guidance based on the ISA figure; re-check against the ISA figure itself."
     },
     {
       "id": "jp_resume",
@@ -34,7 +35,8 @@
       "icon": "work",
       "heightMm": 40,
       "widthMm": 30,
-      "headHeightMm": null,
+      "headHeightMm": 25,
+      "headToleranceMm": 3,
       "topMarginMm": null,
       "backgrounds": ["white", "lightBlue"],
       "validityMonths": 3,
@@ -42,7 +44,7 @@
       "pro": false,
       "verified": true,
       "sourceUrl": null,
-      "notes": "No legal standard; 40x30 is the de-facto size. Companies may specify otherwise."
+      "notes": "No legal standard; 40x30 is the de-facto size. Head framed like the residence-card photo (22-28 mm) for a consistent look."
     },
     {
       "id": "jp_mynumber",
