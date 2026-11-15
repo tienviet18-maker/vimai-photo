@@ -13,10 +13,9 @@ dependencies:
     sdk: flutter
   intl: any
   shared_preferences: ^2.3.2
-  # Versions resolved by CI on first run, then pinned (sandbox cannot reach pub.dev).
-  camera: any
-  google_mlkit_face_detection: any
-  flutter_tts: any
+  camera: ^0.12.2
+  google_mlkit_face_detection: ^1.0.3
+  flutter_tts: ^4.2.5
 
 dev_dependencies:
   flutter_test:

@@ -37,7 +37,7 @@ class FaceAnalyzer {
   ) async {
     final rotation = _rotation(camera, deviceOrientation);
     if (rotation == null) return null;
-    final format = InputImageFormatValue.fromRawValue(image.format.raw);
+    final format = InputImageFormatValue.fromRawValue(image.format.raw as int);
     final supported = Platform.isAndroid
         ? format == InputImageFormat.nv21
         : format == InputImageFormat.bgra8888;
