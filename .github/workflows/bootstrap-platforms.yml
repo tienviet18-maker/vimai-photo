@@ -1,0 +1,59 @@
+name: Bootstrap ios/android
+
+# One-time job: generates the ios/ and android/ folders with `flutter create`
+# and commits them back to the same branch. Runs only on bootstrap/* branches
+# and only while ios/ does not exist yet.
+on:
+  push:
+    branches: ["bootstrap/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  create-platforms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Skip if platforms already exist
+        id: check
+        run: |
+          if [ -d ios ] || [ -d android ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: subosito/flutter-action@v2
+        if: steps.check.outputs.skip != 'true'
+        with:
+          channel: stable
+      - name: flutter create
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          flutter create --org com.vimai --project-name vimai_photo \
+            --platforms ios,android --no-pub .
+          # flutter create adds a counter-app test that does not match our app.
+          rm -f test/widget_test.dart
+          # Store bundle id: com.vimai.photo (Android namespace stays as generated).
+          sed -i 's/applicationId = "com.vimai.vimai_photo"/applicationId = "com.vimai.photo"/' android/app/build.gradle.kts
+          sed -i 's/com\.vimai\.vimaiPhoto/com.vimai.photo/g' ios/Runner.xcodeproj/project.pbxproj
+          # Display name and supported languages.
+          python3 - <<'PY'
+          import plistlib, pathlib
+          p = pathlib.Path("ios/Runner/Info.plist")
+          d = plistlib.loads(p.read_bytes())
+          d["CFBundleDisplayName"] = "ViMai Photo"
+          d["CFBundleLocalizations"] = ["vi", "en", "ja"]
+          d["CFBundleDevelopmentRegion"] = "en"
+          p.write_bytes(plistlib.dumps(d))
+          PY
+          sed -i 's/android:label="vimai_photo"/android:label="ViMai Photo"/' android/app/src/main/AndroidManifest.xml
+          grep -n 'applicationId' android/app/build.gradle.kts
+          grep -c 'com.vimai.photo' ios/Runner.xcodeproj/project.pbxproj
+      - name: Commit generated folders
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ios android test
+          git commit -m "chore: generate ios/android with flutter create"
+          git push
