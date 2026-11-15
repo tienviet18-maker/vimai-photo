@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,6 +63,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('No hat'), findsOneWidget);
     expect(find.text('6 months'), findsOneWidget);
-    expect(find.byIcon(Icons.photo_camera_outlined), findsOneWidget);
+    // The capture button sits below the fold on the 800x600 test screen.
+    await tester.scrollUntilVisible(find.text('Take photo'), 200);
+    expect(find.text('Take photo'), findsOneWidget);
   });
 }
