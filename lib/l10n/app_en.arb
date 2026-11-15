@@ -78,16 +78,169 @@
   "shutter": "Take photo now",
   "capturing": "Taking photos…",
   "retake": "Retake",
-  "bestShotTitle": "Best shot",
-  "bestShotBody": "We picked the sharpest, straightest of {count} shots.",
-  "nextStepPhase2": "Next: background removal and exact cropping (coming in the next build).",
   "cameraDenied": "Camera access is off. Allow it in Settings to take your photo.",
   "cameraError": "The camera could not start.",
-  "@bestShotBody": {
+  "heroTitle": "ID photos to Japanese standards\nshot at home, printed at a konbini",
+  "heroBody": "The app checks size, background and light for the document you pick.",
+  "ctaTakePhoto": "Take ID photo",
+  "ctaForDoc": "For: {doc}",
+  "@ctaForDoc": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "ctaPickPhoto": "Use a photo you have",
+  "stepCapture": "Capture",
+  "stepEdit": "Adjust",
+  "stepPrint": "Print",
+  "reviewTitle": "Check & adjust",
+  "reviewProcessing": "Preparing your photo…",
+  "shotsLabel": "{count} shots",
+  "@shotsLabel": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
-  }
+  },
+  "bestBadge": "Best",
+  "passTitle": "Meets the {doc} standard",
+  "@passTitle": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "failTitle": "{count} item(s) to check",
+  "@failTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passSub": "{passed} of {total} checks passed",
+  "@passSub": {
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "rcSize": "Exact size {w} × {h} mm",
+  "@rcSize": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "rcHead": "Head size and position",
+  "rcBackground": "Plain background",
+  "rcOnlyYou": "Only one person",
+  "rcStraight": "Facing straight",
+  "rcEyes": "Eyes open",
+  "rcLight": "Face well lit",
+  "tabBackground": "Background",
+  "tabFrame": "Framing",
+  "tabLight": "Brightness",
+  "tabOutfit": "Outfit",
+  "frameZoom": "Head size",
+  "frameShift": "Up / down",
+  "resetLabel": "Reset",
+  "outfitSoon": "AI outfit change is coming in Pro, for non-official photos only.",
+  "lockedOfficial": "Retouching and AI outfits are off for official documents, so your application is not returned.",
+  "noEditNote": "This document does not allow edited photos. Shoot in front of a plain white wall.",
+  "continueToSheet": "Next: place on a print sheet",
+  "saveSingle": "Save photo",
+  "savedToPhotos": "Saved to Photos",
+  "saveFailed": "Could not save. Allow access to Photos in Settings.",
+  "processFailed": "Could not process this photo. Please retake it.",
+  "noFaceFound": "No face found in this photo.",
+  "iosOnly": "This currently works on iPhone only.",
+  "sheetTitle": "Print sheet",
+  "sheetInfo": "{paper} {pw} × {ph} mm · {count} photos · 300 dpi",
+  "@sheetInfo": {
+    "placeholders": {
+      "paper": {
+        "type": "String"
+      },
+      "pw": {
+        "type": "String"
+      },
+      "ph": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paperLabel": "Paper",
+  "paperL": "L size",
+  "paper2L": "2L size",
+  "paperCount": "{count} photos",
+  "@paperCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paperCheapest": "{count} photos · cheapest",
+  "@paperCheapest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cutGuides": "Cutting guides",
+  "mixSizes": "Add other sizes to the same sheet",
+  "mixSizesSub": "e.g. 4 residence card + 2 passport photos",
+  "saveSheet": "Save print sheet to Photos",
+  "doneReady": "Ready to print",
+  "doneSheetInfo": "{paper} · {count} photos · {doc}",
+  "@doneSheetInfo": {
+    "placeholders": {
+      "paper": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "howToPrint": "Print at a konbini in 3 steps",
+  "printStep1Title": "Open the store's print app",
+  "printStep1Body": "7-Eleven: netprint · Lawson / FamilyMart: PrintSmash",
+  "printStep2Title": "Pick the saved sheet, L size",
+  "printStep2Body": "Turn off auto-trim so nothing gets cut off.",
+  "printStep3Title": "Cut along the guides",
+  "printStep3Body": "Scissors, or a cutter and a ruler.",
+  "saveDigital": "Save digital photo",
+  "saveDigitalSub": "for online applications",
+  "shareLabel": "Share",
+  "shareSub": "LINE, Zalo, AirDrop",
+  "proTitle": "All documents · mixed sizes",
+  "proSub": "¥700 · one-time, no subscription",
+  "proSoon": "Pro is coming soon.",
+  "anotherDoc": "Photo for another document",
+  "doneAction": "Done",
+  "detailsLabel": "Requirements",
+  "autoMode": "Auto",
+  "manualMode": "Manual",
+  "closeLabel": "Close"
 }
