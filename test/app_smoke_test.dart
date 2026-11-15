@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,11 +9,16 @@ import 'package:vimai_photo/app.dart';
 import 'package:vimai_photo/core/locale/locale_controller.dart';
 import 'package:vimai_photo/core/specs/spec_repository.dart';
 
-/// Serves the real spec file without the platform asset channel.
+/// Serves the real spec file synchronously, so no real I/O has to finish
+/// inside the test's fake-async zone.
 class _FileBundle extends CachingAssetBundle {
   @override
-  Future<ByteData> load(String key) async =>
-      ByteData.sublistView(await File(key).readAsBytes());
+  Future<ByteData> load(String key) =>
+      SynchronousFuture(ByteData.sublistView(File(key).readAsBytesSync()));
+
+  @override
+  Future<String> loadString(String key, {bool cache = true}) =>
+      SynchronousFuture(File(key).readAsStringSync());
 }
 
 Future<void> _pumpApp(WidgetTester tester, {String? locale}) async {
@@ -26,7 +32,6 @@ Future<void> _pumpApp(WidgetTester tester, {String? locale}) async {
       specRepository: SpecRepository(bundle: _FileBundle()),
     ),
   );
-  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
   await tester.pumpAndSettle();
 }
 
