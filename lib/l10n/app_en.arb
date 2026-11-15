@@ -1,9 +1,13 @@
 {
   "@@locale": "en",
   "appTitle": "ViMai Photo",
-  "@appTitle": {"description": "App name shown in the app bar"},
+  "@appTitle": {
+    "description": "App name shown in the app bar"
+  },
   "homeHeadline": "Which document is the photo for?",
-  "@homeHeadline": {"description": "Main question on the home screen"},
+  "@homeHeadline": {
+    "description": "Main question on the home screen"
+  },
   "homeSubline": "We set the size, background and rules for you.",
   "searchHint": "Search documents",
   "proBadge": "Pro",
@@ -11,20 +15,27 @@
   "sizeValue": "{heightMm} × {widthMm} mm",
   "@sizeValue": {
     "placeholders": {
-      "heightMm": {"type": "String"},
-      "widthMm": {"type": "String"}
+      "heightMm": {
+        "type": "String"
+      },
+      "widthMm": {
+        "type": "String"
+      }
     }
   },
   "backgroundLabel": "Background",
   "validityLabel": "Must be taken within",
   "validityMonths": "{months, plural, =1{1 month} other{{months} months}}",
   "@validityMonths": {
-    "placeholders": {"months": {"type": "int"}}
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
   },
   "rulesLabel": "Rules",
   "sourceLabel": "Official source",
   "startCapture": "Take photo",
-  "captureComingSoon": "The camera arrives in the next build.",
   "unverifiedWarning": "This standard has not been checked against the official source yet. Hidden in release builds.",
   "settingsTitle": "Settings",
   "languageLabel": "Language",
@@ -40,5 +51,43 @@
   "ruleNoEdit": "No retouching",
   "ruleNameOnBack": "Write your name on the back",
   "ruleEyesVisible": "Hair and glasses must not cover the eyes",
-  "noResults": "No document matches"
+  "noResults": "No document matches",
+  "checkFace": "Centred",
+  "checkDistance": "Distance",
+  "checkStraight": "Straight",
+  "checkLevel": "Level",
+  "checkEyes": "Eyes",
+  "checkLight": "Light",
+  "hintNoFace": "No face yet. Face the camera.",
+  "hintManyFaces": "Only you in the frame, please.",
+  "hintMoveCloser": "Come a little closer.",
+  "hintMoveBack": "Move back a little.",
+  "hintMoveLeft": "Move a little to the left.",
+  "hintMoveRight": "Move a little to the right.",
+  "hintMoveUp": "Raise your face a little.",
+  "hintMoveDown": "Lower your face a little.",
+  "hintLookStraight": "Look straight at the camera.",
+  "hintLevelHead": "Keep your head level.",
+  "hintOpenEyes": "Open your eyes fully.",
+  "hintNeedLight": "Too dark. Find a brighter spot.",
+  "hintTooBright": "Too bright. Avoid direct sunlight.",
+  "hintHoldStill": "Hold still…",
+  "voiceOn": "Voice guide on",
+  "voiceOff": "Voice guide off",
+  "switchCamera": "Switch camera",
+  "shutter": "Take photo now",
+  "capturing": "Taking photos…",
+  "retake": "Retake",
+  "bestShotTitle": "Best shot",
+  "bestShotBody": "We picked the sharpest, straightest of {count} shots.",
+  "nextStepPhase2": "Next: background removal and exact cropping (coming in the next build).",
+  "cameraDenied": "Camera access is off. Allow it in Settings to take your photo.",
+  "cameraError": "The camera could not start.",
+  "@bestShotBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
