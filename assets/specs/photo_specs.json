@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-11-15",
+  "specs": [
+    {
+      "id": "jp_residence",
+      "names": {
+        "en": "Residence card / visa application",
+        "vi": "Thẻ cư trú / gia hạn, đổi visa",
+        "ja": "在留カード・在留申請"
+      },
+      "jaName": "在留カード・在留申請",
+      "icon": "badge",
+      "heightMm": 40,
+      "widthMm": 30,
+      "headHeightMm": null,
+      "topMarginMm": null,
+      "backgrounds": ["white", "lightBlue"],
+      "validityMonths": 6,
+      "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "eyesVisible", "nameOnBack"],
+      "pro": false,
+      "verified": true,
+      "sourceUrl": "https://www.moj.go.jp/isa/applications/status/photo_info_00002.html",
+      "notes": "Head dimensions are only in the figure on the ISA page; fill headHeightMm/topMarginMm after reading the figure."
+    },
+    {
+      "id": "jp_resume",
+      "names": {
+        "en": "Résumé (rirekisho)",
+        "vi": "Sơ yếu lý lịch (履歴書)",
+        "ja": "履歴書"
+      },
+      "jaName": "履歴書",
+      "icon": "work",
+      "heightMm": 40,
+      "widthMm": 30,
+      "headHeightMm": null,
+      "topMarginMm": null,
+      "backgrounds": ["white", "lightBlue"],
+      "validityMonths": 3,
+      "rules": ["onlyYou", "noHat", "frontFacing"],
+      "pro": false,
+      "verified": true,
+      "sourceUrl": null,
+      "notes": "No legal standard; 40x30 is the de-facto size. Companies may specify otherwise."
+    },
+    {
+      "id": "jp_mynumber",
+      "names": {
+        "en": "My Number card",
+        "vi": "Thẻ My Number",
+        "ja": "マイナンバーカード"
+      },
+      "jaName": "マイナンバーカード",
+      "icon": "credit_card",
+      "heightMm": 45,
+      "widthMm": 35,
+      "headHeightMm": null,
+      "topMarginMm": null,
+      "backgrounds": ["white", "lightBlue"],
+      "validityMonths": 6,
+      "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "nameOnBack"],
+      "pro": true,
+      "verified": true,
+      "sourceUrl": "https://www.kojinbango-card.go.jp",
+      "notes": "J-LIS: 4.5x3.5cm, within 6 months, front, no hat, no background. Online application uses 480-6000px JPEG instead."
+    },
+    {
+      "id": "jp_passport",
+      "names": {
+        "en": "Japanese passport",
+        "vi": "Hộ chiếu Nhật",
+        "ja": "日本のパスポート"
+      },
+      "jaName": "パスポート",
+      "icon": "flight",
+      "heightMm": 45,
+      "widthMm": 35,
+      "headHeightMm": 34,
+      "headToleranceMm": 2,
+      "topMarginMm": 4,
+      "topMarginToleranceMm": 2,
+      "backgrounds": ["white"],
+      "validityMonths": 6,
+      "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "eyesVisible", "noEdit"],
+      "pro": true,
+      "verified": true,
+      "sourceUrl": "https://www.mofa.go.jp/mofaj/toko/passport/ic_photo.html",
+      "notes": "ICAO: head 34±2mm, top margin 4±2mm. White background recommended (Osaka pref.)."
+    },
+    {
+      "id": "jp_driver_license",
+      "names": {
+        "en": "Japanese driver's license",
+        "vi": "Bằng lái xe Nhật",
+        "ja": "運転免許証"
+      },
+      "jaName": "運転免許証",
+      "icon": "directions_car",
+      "heightMm": 30,
+      "widthMm": 24,
+      "headHeightMm": null,
+      "topMarginMm": null,
+      "backgrounds": ["lightBlue", "white"],
+      "validityMonths": 6,
+      "rules": ["noHat", "frontFacing", "upperBody", "noEdit", "eyesVisible"],
+      "pro": true,
+      "verified": true,
+      "sourceUrl": "https://www.pref.shimane.lg.jp/police/03_drivers_license/various_fees/oshirase/shinsei_photo.html",
+      "notes": "3.0x2.4cm, upper third of body, no background, within 6 months. Bring-your-own photo is accepted only at some centers."
+    },
+    {
+      "id": "vn_passport",
+      "names": {
+        "en": "Vietnamese passport (embassy in Japan)",
+        "vi": "Hộ chiếu Việt Nam (làm tại Nhật)",
+        "ja": "ベトナムのパスポート"
+      },
+      "jaName": "ベトナム旅券",
+      "icon": "flight",
+      "heightMm": 60,
+      "widthMm": 40,
+      "headHeightMm": null,
+      "topMarginMm": null,
+      "backgrounds": ["white"],
+      "validityMonths": 6,
+      "rules": ["onlyYou", "noHat", "frontFacing"],
+      "pro": true,
+      "verified": false,
+      "sourceUrl": null,
+      "notes": "TODO: confirm with the Embassy of Viet Nam in Japan / Consulate in Osaka before enabling."
+    },
+    {
+      "id": "us_visa",
+      "names": {
+        "en": "US visa",
+        "vi": "Visa Mỹ",
+        "ja": "アメリカのビザ"
+      },
+      "jaName": "米国ビザ",
+      "icon": "public",
+      "heightMm": 51,
+      "widthMm": 51,
+      "headHeightMm": null,
+      "topMarginMm": null,
+      "backgrounds": ["white"],
+      "validityMonths": 6,
+      "rules": ["onlyYou", "frontFacing", "noShadow", "noEdit"],
+      "pro": true,
+      "verified": false,
+      "sourceUrl": "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/photos.html",
+      "notes": "TODO: confirm head size range on travel.state.gov before enabling."
+    }
+  ]
+}

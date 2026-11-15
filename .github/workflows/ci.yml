@@ -1,0 +1,30 @@
+name: CI
+
+# Linux only (cheap minutes). iOS builds are done in Xcode on the iMac.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      # Infos stay visible but do not fail: Flutter 3.47+ deprecates
+      # package:flutter/material.dart in favour of package:material_ui, and
+      # gen-l10n output still uses the old API. Warnings and errors fail.
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
