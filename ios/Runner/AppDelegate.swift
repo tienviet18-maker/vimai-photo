@@ -5,6 +5,7 @@ import Photos
 import PhotosUI
 import UIKit
 import UniformTypeIdentifiers
+import UserNotifications
 import Vision
 
 @main
@@ -69,6 +70,13 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       share(path: args["path"] as! String, result: result)
     case "pickPhoto":
       pickPhoto(limit: args["limit"] as? Int ?? 1, result: result)
+    case "appDir":
+      result(appDir())
+    case "scheduleReminder":
+      scheduleReminder(args, result: result)
+    case "cancelReminder":
+      UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [args["id"] as! String])
+      result(nil)
     case "clearCache":
       queue.async { self.cache.removeAll() }
       result(nil)
@@ -262,6 +270,11 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       hasMask = true
     }
 
+    // The untouched crop, for the before/after view.
+    let beforePath = (args["before"] as? Bool ?? false)
+      ? try writeJPEG(try downscale(rgba, W, H, outW, outH), dpi: dpi, prefix: "before")
+      : nil
+
     // Linear light, so gains behave like a camera's exposure.
     var lut = [Float](repeating: 0, count: 256)
     for v in 0..<256 { lut[v] = powf(Float(v) / 255, 2.2) }
@@ -397,20 +410,7 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       out[i * 4 + 1] = UInt8(min(max(powf(max(g[i], 0), 1 / 2.2), 0), 1) * 255 + 0.5)
       out[i * 4 + 2] = UInt8(min(max(powf(max(b[i], 0), 1 / 2.2), 0), 1) * 255 + 0.5)
     }
-    let data = Data(out)
-    guard let provider = CGDataProvider(data: data as CFData),
-          let big = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4,
-                            space: srgb, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
-                            provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent) else {
-      throw fail(3, "image failed")
-    }
-    let small = CIImage(cgImage: big).applyingFilter("CILanczosScaleTransform", parameters: [
-      kCIInputScaleKey: 0.5, kCIInputAspectRatioKey: 1.0,
-    ]).cropped(to: CGRect(x: 0, y: 0, width: outW, height: outH))
-    guard let final = context.createCGImage(small, from: CGRect(x: 0, y: 0, width: outW, height: outH),
-                                            format: .RGBA8, colorSpace: srgb) else {
-      throw fail(3, "scale failed")
-    }
+    let final = try downscale(out, W, H, outW, outH)
 
     var result: [String: Any] = [
       "path": try writeJPEG(final, dpi: dpi, prefix: "photo"),
@@ -419,11 +419,30 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       "backgroundReplaced": replaced,
     ]
     if let s = spread { result["backgroundSpread"] = s }
+    if let b = beforePath { result["beforePath"] = b }
     if let crown = crownSrc, let chin = chinSrc {
       result["headMm"] = (chin - crown) / ch * heightMm
       result["topMarginMm"] = (crown - top) / ch * heightMm
     }
     return result
+  }
+
+  /// 8-bit RGBA at twice the print size, scaled down with Lanczos.
+  private func downscale(_ bytes: [UInt8], _ W: Int, _ H: Int, _ outW: Int, _ outH: Int) throws -> CGImage {
+    guard let provider = CGDataProvider(data: Data(bytes) as CFData),
+          let big = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4,
+                            space: srgb, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
+                            provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent) else {
+      throw fail(3, "image failed")
+    }
+    let small = CIImage(cgImage: big).applyingFilter("CILanczosScaleTransform", parameters: [
+      kCIInputScaleKey: Double(outH) / Double(H), kCIInputAspectRatioKey: 1.0,
+    ]).cropped(to: CGRect(x: 0, y: 0, width: outW, height: outH))
+    guard let image = context.createCGImage(small, from: CGRect(x: 0, y: 0, width: outW, height: outH),
+                                            format: .RGBA8, colorSpace: srgb) else {
+      throw fail(3, "scale failed")
+    }
+    return image
   }
 
   private func smoothstep(_ e0: Float, _ e1: Float, _ x: Float) -> Float {
@@ -513,6 +532,42 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       throw NSError(domain: "photo", code: 6, userInfo: [NSLocalizedDescriptionKey: "cannot finalize"])
     }
     return url.path
+  }
+
+  // MARK: storage and reminders
+
+  /// Folder for the user's saved photos; kept out of iCloud backups' cache
+  /// purge because Application Support is never cleared by the system.
+  private func appDir() -> String {
+    let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    let dir = base.appendingPathComponent("photos", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir.path
+  }
+
+  /// A local notification at `at` (ms since epoch). Asks for permission the
+  /// first time; returns false when the user declines.
+  private func scheduleReminder(_ args: [String: Any], result: @escaping FlutterResult) {
+    let id = args["id"] as! String
+    let at = Date(timeIntervalSince1970: (args["at"] as! Double) / 1000)
+    let content = UNMutableNotificationContent()
+    content.title = args["title"] as? String ?? ""
+    content.body = args["body"] as? String ?? ""
+    content.sound = .default
+    let parts = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: at)
+    let request = UNNotificationRequest(
+      identifier: id, content: content,
+      trigger: UNCalendarNotificationTrigger(dateMatching: parts, repeats: false))
+    let center = UNUserNotificationCenter.current()
+    center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+      guard granted else {
+        DispatchQueue.main.async { result(false) }
+        return
+      }
+      center.add(request) { error in
+        DispatchQueue.main.async { result(error == nil) }
+      }
+    }
   }
 
   // MARK: save, share, pick

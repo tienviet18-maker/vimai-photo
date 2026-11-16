@@ -12,6 +12,7 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../platform/photo_native.dart';
 import '../../widgets/flow_widgets.dart';
+import 'processing_view.dart';
 import '../sheet/sheet_screen.dart';
 
 /// Step 2 of 3: the photo already cut to the document's exact size, a
@@ -53,6 +54,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _showChecks = false;
 
   String? _rendered;
+  String? _beforePath;
+  bool _showBefore = false;
   RenderResult? _render;
   ReviewResult? _result;
 
@@ -107,10 +110,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
         replaceBackground: _replaceBackground,
         level: _level,
         exposure: _exposure,
+        before: true,
       );
       if (ticket != _ticket || !mounted) return;
       setState(() {
         _rendered = out.path;
+        _beforePath = out.beforePath;
         _render = out;
         _result = reviewPhoto(
           analysis,
@@ -145,6 +150,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         builder: (_) => SheetScreen(
           spec: widget.spec,
           photoPath: path,
+          sourcePath: widget.shots[_index],
           native: widget.native,
         ),
       ),
@@ -157,6 +163,21 @@ class _ReviewScreenState extends State<ReviewScreen> {
     final lang = Localizations.localeOf(context).languageCode;
     final spec = widget.spec;
 
+    if (_rendered == null && _error == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l.procTitle)),
+        body: ProcessingView(
+          steps: [
+            l.procFace,
+            l.procLight,
+            _replaceBackground ? l.procBackground : l.procBackgroundKeep,
+            l.procCrop(formatMm(spec.widthMm), formatMm(spec.heightMm)),
+            l.procCheck,
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(l.reviewTitle)),
       body: Column(
@@ -168,7 +189,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               children: [
                 _PreviewWell(
                   spec: spec,
-                  rendered: _rendered,
+                  rendered: _showBefore && _beforePath != null ? _beforePath : _rendered,
                   busy: _busy,
                   error: _error,
                   shots: widget.shots,
@@ -180,6 +201,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     _process();
                   },
                 ),
+                if (_beforePath != null) ...[
+                  const SizedBox(height: 10),
+                  Center(
+                    child: SegmentedButton<bool>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(value: true, label: Text(l.beforeLabel)),
+                        ButtonSegment(value: false, label: Text(l.afterLabel)),
+                      ],
+                      selected: {_showBefore},
+                      onSelectionChanged: (v) => setState(() => _showBefore = v.first),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 if (_result != null)
                   _ChecksBanner(
