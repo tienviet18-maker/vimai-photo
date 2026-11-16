@@ -62,7 +62,7 @@
       "backgrounds": ["white", "lightBlue"],
       "validityMonths": 6,
       "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "nameOnBack"],
-      "pro": true,
+      "pro": false,
       "verified": true,
       "sourceUrl": "https://www.kojinbango-card.go.jp",
       "notes": "J-LIS: 4.5x3.5cm, within 6 months, front, no hat, no background. Online application uses 480-6000px JPEG instead."
@@ -85,7 +85,7 @@
       "backgrounds": ["white"],
       "validityMonths": 6,
       "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "eyesVisible", "noEdit"],
-      "pro": true,
+      "pro": false,
       "verified": true,
       "sourceUrl": "https://www.mofa.go.jp/mofaj/toko/passport/ic_photo.html",
       "notes": "ICAO: head 34±2mm, top margin 4±2mm. White background recommended (Osaka pref.)."
@@ -106,7 +106,7 @@
       "backgrounds": ["lightBlue", "white"],
       "validityMonths": 6,
       "rules": ["noHat", "frontFacing", "upperBody", "noEdit", "eyesVisible"],
-      "pro": true,
+      "pro": false,
       "verified": true,
       "sourceUrl": "https://www.pref.shimane.lg.jp/police/03_drivers_license/various_fees/oshirase/shinsei_photo.html",
       "notes": "3.0x2.4cm, upper third of body, no background, within 6 months. Bring-your-own photo is accepted only at some centers."
@@ -127,7 +127,7 @@
       "backgrounds": ["white"],
       "validityMonths": 6,
       "rules": ["onlyYou", "noHat", "frontFacing"],
-      "pro": true,
+      "pro": false,
       "verified": false,
       "sourceUrl": null,
       "notes": "TODO: confirm with the Embassy of Viet Nam in Japan / Consulate in Osaka before enabling."
@@ -148,7 +148,7 @@
       "backgrounds": ["white"],
       "validityMonths": 6,
       "rules": ["onlyYou", "frontFacing", "noShadow", "noEdit"],
-      "pro": true,
+      "pro": false,
       "verified": false,
       "sourceUrl": "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/photos.html",
       "notes": "TODO: confirm head size range on travel.state.gov before enabling."

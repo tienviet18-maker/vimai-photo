@@ -19,9 +19,16 @@ import 'face_analyzer.dart';
 /// Step 2 of 3: live checks, then an automatic burst once every light has
 /// stayed green for a moment.
 class CaptureScreen extends StatefulWidget {
-  const CaptureScreen({super.key, required this.spec});
+  const CaptureScreen({
+    super.key,
+    required this.spec,
+    this.initialLens = CameraLensDirection.front,
+  });
 
   final PhotoSpec spec;
+
+  /// Front when the user shoots alone, back when someone else holds it.
+  final CameraLensDirection initialLens;
 
   @override
   State<CaptureScreen> createState() => _CaptureScreenState();
@@ -38,7 +45,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   List<CameraDescription> _cameras = const [];
   CameraController? _controller;
-  CameraLensDirection _lens = CameraLensDirection.front;
+  late CameraLensDirection _lens = widget.initialLens;
   CaptureEvaluation? _eval;
   bool _busy = false;
   bool _capturing = false;

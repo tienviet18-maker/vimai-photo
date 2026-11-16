@@ -36,6 +36,7 @@ bool isOfficialDocument(PhotoSpec spec) => editLevelFor(spec) != EditLevel.cv;
 class RenderResult {
   const RenderResult({
     required this.path,
+    this.beforePath,
     this.headMm,
     this.topMarginMm,
     this.faceLuma,
@@ -48,6 +49,7 @@ class RenderResult {
     double? d(Object? v) => (v as num?)?.toDouble();
     return RenderResult(
       path: m['path']! as String,
+      beforePath: m['beforePath'] as String?,
       headMm: d(m['headMm']),
       topMarginMm: d(m['topMarginMm']),
       faceLuma: d(m['faceLuma']),
@@ -58,6 +60,9 @@ class RenderResult {
   }
 
   final String path;
+
+  /// The same crop without any correction, when asked for.
+  final String? beforePath;
 
   /// Crown (with hair) to chin on the printed photo.
   final double? headMm;

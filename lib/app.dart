@@ -3,8 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/locale/locale_controller.dart';
 import 'core/specs/spec_repository.dart';
+import 'core/store/photo_store.dart';
 import 'core/theme.dart';
-import 'features/home/home_screen.dart';
+import 'features/shell/app_shell.dart';
 import 'l10n/app_localizations.dart';
 
 class VimaiPhotoApp extends StatelessWidget {
@@ -12,10 +13,12 @@ class VimaiPhotoApp extends StatelessWidget {
     super.key,
     required this.localeController,
     required this.specRepository,
+    required this.photoStore,
   });
 
   final LocaleController localeController;
   final SpecRepository specRepository;
+  final PhotoStore photoStore;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,8 @@ class VimaiPhotoApp extends StatelessWidget {
                   .firstOrNull ??
               const Locale('en');
         },
-        home: HomeScreen(
+        builder: (context, child) => PhotoStoreScope(store: photoStore, child: child!),
+        home: AppShell(
           specRepository: specRepository,
           localeController: localeController,
         ),
