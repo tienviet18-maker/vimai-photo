@@ -42,6 +42,7 @@ class PhotoNative {
     required bool replaceBackground,
     required EditLevel level,
     double exposure = 0,
+    Map<String, double>? beauty,
     bool before = false,
     int dpi = 300,
   }) async {
@@ -55,6 +56,7 @@ class PhotoNative {
       'replaceBackground': replaceBackground,
       'level': level.name,
       'exposure': exposure,
+      if (beauty != null) 'beauty': beauty,
       'before': before,
       'dpi': dpi,
       if (analysis.hasFace)

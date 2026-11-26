@@ -190,5 +190,16 @@
   "printTipsTitle": "เคล็ดลับให้ได้ขนาดพอดี",
   "savedToMyPhotos": "บันทึกในรูปของฉันแล้ว",
   "sourceMissing": "ไม่มีรูปต้นฉบับแล้ว ถ่ายรูปใหม่",
-  "chooseDocTitle": "เลือกเอกสาร"
+  "chooseDocTitle": "เลือกเอกสาร",
+  "tabBeauty": "บิวตี้",
+  "beautySmooth": "ผิวเนียน",
+  "beautyBrighten": "ผิวสว่าง",
+  "beautyEven": "สีผิวสม่ำเสมอ",
+  "beautyShine": "ลดความมัน",
+  "beautySharpen": "ความคมชัด",
+  "beautyNote": "ปรับเฉพาะผิว ไม่เปลี่ยนรูปหน้าเด็ดขาด",
+  "beautyOff": "ปิด",
+  "beautyStrictWarning": "พาสปอร์ตและใบขับขี่อาจไม่รับรูปที่รีทัช ใช้เบาๆ หรือปิดไว้",
+  "beautyStrictAccept": "ใช้ต่อ",
+  "beautyLightBadge": "ปรับผิวเบาๆ เท่านั้น (แสง สีผิว ความมัน) รูปหน้าเหมือนเดิม"
 }

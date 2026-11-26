@@ -203,5 +203,16 @@
   "printTipsTitle": "正しいサイズで印刷するコツ",
   "savedToMyPhotos": "マイ写真に保存しました",
   "sourceMissing": "元の写真がありません。新しく撮ってください。",
-  "chooseDocTitle": "書類を選ぶ"
+  "chooseDocTitle": "書類を選ぶ",
+  "tabBeauty": "美肌",
+  "beautySmooth": "肌をなめらかに",
+  "beautyBrighten": "肌を明るく",
+  "beautyEven": "肌色を均一に",
+  "beautyShine": "テカリを抑える",
+  "beautySharpen": "シャープ",
+  "beautyNote": "肌だけを補正します。顔の形は変えません。",
+  "beautyOff": "オフ",
+  "beautyStrictWarning": "パスポートや運転免許証では、修整した写真は受け付けられないことがあります。控えめにするか、オフにしてください。",
+  "beautyStrictAccept": "それでも美肌を使う",
+  "beautyLightBadge": "軽い美肌補正のみ（明るさ・肌色・テカリ）。顔の形はそのままです。"
 }

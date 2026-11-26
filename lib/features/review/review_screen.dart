@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../core/capture/face_metrics.dart';
+import '../../core/photo/beauty.dart';
 import '../../core/photo/crop_geometry.dart';
 import '../../core/photo/photo_analysis.dart';
 import '../../core/photo/review_checks.dart';
@@ -42,7 +43,7 @@ class ReviewScreen extends StatefulWidget {
   State<ReviewScreen> createState() => _ReviewScreenState();
 }
 
-enum _Tab { background, frame, light }
+enum _Tab { background, frame, light, beauty }
 
 class _ReviewScreenState extends State<ReviewScreen> {
   final _analyses = <String, PhotoAnalysis>{};
@@ -63,6 +64,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
   /// Strict documents keep their background unless the user accepts the
   /// warning that the office may refuse an edited background.
   bool _strictBackgroundAccepted = false;
+
+  /// Skin care: a default per document, tuned by the user. Strict
+  /// documents start at zero and unlock only after a warning.
+  late BeautySettings _beauty = defaultBeautyFor(editLevelFor(widget.spec));
+  bool _strictBeautyAccepted = false;
   String? _error;
   bool _busy = false;
   int _ticket = 0;
@@ -111,6 +117,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         replaceBackground: _replaceBackground,
         level: _level,
         exposure: _exposure,
+        beauty: _beauty.isNone ? null : _beauty.toMap(),
         before: true,
       );
       if (ticket != _ticket || !mounted) return;
@@ -228,7 +235,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   ),
                 if (isOfficialDocument(spec)) ...[
                   const SizedBox(height: 10),
-                  _NoRetouchBadge(text: l.noFaceEditBadge),
+                  _NoRetouchBadge(text: _beauty.isNone ? l.noFaceEditBadge : l.beautyLightBadge),
                 ],
                 const SizedBox(height: 14),
                 _TabBar(
@@ -360,6 +367,63 @@ class _ReviewScreenState extends State<ReviewScreen> {
           max: 0.6,
           onChanged: (v) => setState(() => _exposure = v),
           onChangeEnd: (_) => _process(),
+        );
+      case _Tab.beauty:
+        if (_level == EditLevel.strict && !_strictBeautyAccepted) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LockNote(text: l.beautyStrictWarning),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                  onPressed: () => setState(() => _strictBeautyAccepted = true),
+                  child: Text(l.beautyStrictAccept),
+                ),
+              ),
+            ],
+          );
+        }
+        Widget slider(String label, double value, BeautySettings Function(double) apply) => _SliderRow(
+              label: label,
+              value: value,
+              min: 0,
+              max: 1,
+              showPercent: true,
+              onChanged: (v) => setState(() => _beauty = apply(v)),
+              onChangeEnd: (_) => _process(),
+            );
+        return Column(
+          children: [
+            slider(l.beautySmooth, _beauty.smooth, (v) => _beauty.copyWith(smooth: v)),
+            slider(l.beautyBrighten, _beauty.brighten, (v) => _beauty.copyWith(brighten: v)),
+            slider(l.beautyEven, _beauty.even, (v) => _beauty.copyWith(even: v)),
+            slider(l.beautyShine, _beauty.shine, (v) => _beauty.copyWith(shine: v)),
+            slider(l.beautySharpen, _beauty.sharpen, (v) => _beauty.copyWith(sharpen: v)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(l.beautyNote, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _beauty = BeautySettings.none);
+                    _process();
+                  },
+                  child: Text(l.beautyOff),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _beauty = defaultBeautyFor(_level == EditLevel.strict ? EditLevel.standard : _level));
+                    _process();
+                  },
+                  child: Text(l.resetLabel),
+                ),
+              ],
+            ),
+          ],
         );
     }
   }
@@ -663,6 +727,7 @@ class _TabBar extends StatelessWidget {
       _Tab.background: l.tabBackground,
       _Tab.frame: l.tabFrame,
       _Tab.light: l.tabLight,
+      _Tab.beauty: l.tabBeauty,
     };
     return Container(
       padding: const EdgeInsets.all(4),
@@ -767,12 +832,14 @@ class _SliderRow extends StatelessWidget {
     required this.max,
     required this.onChanged,
     required this.onChangeEnd,
+    this.showPercent = false,
   });
 
   final String label;
   final double value;
   final double min;
   final double max;
+  final bool showPercent;
   final ValueChanged<double> onChanged;
   final ValueChanged<double> onChangeEnd;
 
@@ -793,6 +860,15 @@ class _SliderRow extends StatelessWidget {
             onChangeEnd: onChangeEnd,
           ),
         ),
+        if (showPercent)
+          SizedBox(
+            width: 34,
+            child: Text(
+              '${(value * 100).round()}',
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.muted),
+            ),
+          ),
       ],
     );
   }

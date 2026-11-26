@@ -190,5 +190,16 @@
   "printTipsTitle": "列印出正確尺寸的技巧",
   "savedToMyPhotos": "已儲存到我的照片",
   "sourceMissing": "原始照片已不在，請重新拍照。",
-  "chooseDocTitle": "選擇證件"
+  "chooseDocTitle": "選擇證件",
+  "tabBeauty": "美顏",
+  "beautySmooth": "磨皮",
+  "beautyBrighten": "美白",
+  "beautyEven": "膚色均勻",
+  "beautyShine": "去油光",
+  "beautySharpen": "銳化",
+  "beautyNote": "只調整皮膚，絕不改變臉型。",
+  "beautyOff": "關閉",
+  "beautyStrictWarning": "護照和駕照可能不接受修過的照片。請輕度使用或關閉。",
+  "beautyStrictAccept": "仍然使用美顏",
+  "beautyLightBadge": "僅輕度美膚（亮度、膚色、油光），不改變臉型。"
 }

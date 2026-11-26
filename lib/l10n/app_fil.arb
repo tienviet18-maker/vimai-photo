@@ -190,5 +190,16 @@
   "printTipsTitle": "Mga tip para tama ang sukat",
   "savedToMyPhotos": "Na-save sa Mga litrato ko",
   "sourceMissing": "Wala na ang original na kuha. Kumuha ng bago.",
-  "chooseDocTitle": "Pumili ng dokumento"
+  "chooseDocTitle": "Pumili ng dokumento",
+  "tabBeauty": "Ganda",
+  "beautySmooth": "Kinis ng balat",
+  "beautyBrighten": "Liwanag ng balat",
+  "beautyEven": "Pantay na kulay",
+  "beautyShine": "Bawas kintab",
+  "beautySharpen": "Linaw",
+  "beautyNote": "Balat lang ang inaayos. Hindi binabago ang hugis ng mukha.",
+  "beautyOff": "Off",
+  "beautyStrictWarning": "Maaaring tanggihan ng passport at lisensya ang ni-retouch na litrato. Gawing magaan o i-off.",
+  "beautyStrictAccept": "Gamitin pa rin",
+  "beautyLightBadge": "Magaan na pag-aayos ng balat lang (liwanag, kulay, kintab). Hindi binago ang hugis ng mukha."
 }

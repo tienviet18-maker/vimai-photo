@@ -203,5 +203,16 @@
   "printTipsTitle": "Mẹo để ảnh in đúng cỡ",
   "savedToMyPhotos": "Đã lưu vào Ảnh của tôi",
   "sourceMissing": "Không còn ảnh gốc, hãy chụp ảnh mới.",
-  "chooseDocTitle": "Chọn giấy tờ"
+  "chooseDocTitle": "Chọn giấy tờ",
+  "tabBeauty": "Làm đẹp",
+  "beautySmooth": "Mịn da",
+  "beautyBrighten": "Sáng da",
+  "beautyEven": "Đều màu da",
+  "beautyShine": "Giảm bóng dầu",
+  "beautySharpen": "Làm nét",
+  "beautyNote": "Chỉ chỉnh da. Không bao giờ thay đổi dáng khuôn mặt.",
+  "beautyOff": "Tắt",
+  "beautyStrictWarning": "Hộ chiếu và bằng lái có thể bị từ chối nếu ảnh chỉnh mặt. Hãy để nhẹ, hoặc tắt.",
+  "beautyStrictAccept": "Vẫn dùng làm đẹp",
+  "beautyLightBadge": "Chỉ làm đẹp da nhẹ (sáng, đều màu, bóng dầu). Giữ nguyên dáng mặt."
 }

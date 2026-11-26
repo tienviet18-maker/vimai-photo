@@ -190,5 +190,16 @@
   "printTipsTitle": "Dicas para o tamanho certo",
   "savedToMyPhotos": "Salva em Minhas fotos",
   "sourceMissing": "A foto original não existe mais. Tire uma nova.",
-  "chooseDocTitle": "Escolha o documento"
+  "chooseDocTitle": "Escolha o documento",
+  "tabBeauty": "Beleza",
+  "beautySmooth": "Suavizar pele",
+  "beautyBrighten": "Clarear pele",
+  "beautyEven": "Uniformizar tom",
+  "beautyShine": "Menos brilho",
+  "beautySharpen": "Nitidez",
+  "beautyNote": "Só a pele é ajustada. O formato do rosto nunca muda.",
+  "beautyOff": "Desligar",
+  "beautyStrictWarning": "Passaporte e carteira de motorista podem recusar fotos retocadas. Use pouco ou desligue.",
+  "beautyStrictAccept": "Usar mesmo assim",
+  "beautyLightBadge": "Só um cuidado leve com a pele (luz, tom, brilho). Rosto sem alteração."
 }

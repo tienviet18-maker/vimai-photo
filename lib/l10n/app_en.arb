@@ -447,5 +447,16 @@
   "printTipsTitle": "Tips for the right size",
   "savedToMyPhotos": "Saved to My photos",
   "sourceMissing": "The original shot is gone. Please take a new photo.",
-  "chooseDocTitle": "Choose a document"
+  "chooseDocTitle": "Choose a document",
+  "tabBeauty": "Beauty",
+  "beautySmooth": "Smooth skin",
+  "beautyBrighten": "Brighten skin",
+  "beautyEven": "Even skin tone",
+  "beautyShine": "Less shine",
+  "beautySharpen": "Sharpen",
+  "beautyNote": "Skin only. The shape of your face never changes.",
+  "beautyOff": "Off",
+  "beautyStrictWarning": "Passport and licence offices may refuse retouched photos. Keep it light, or leave it off.",
+  "beautyStrictAccept": "Use beauty anyway",
+  "beautyLightBadge": "Light skin care only (light, tone, shine). Face shape unchanged."
 }

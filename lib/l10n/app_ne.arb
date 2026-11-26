@@ -190,5 +190,16 @@
   "printTipsTitle": "सही साइजका लागि सुझाव",
   "savedToMyPhotos": "मेरा फोटोमा सेभ भयो",
   "sourceMissing": "मूल फोटो छैन। नयाँ खिच्नुहोस्।",
-  "chooseDocTitle": "कागजात छान्नुहोस्"
+  "chooseDocTitle": "कागजात छान्नुहोस्",
+  "tabBeauty": "सौन्दर्य",
+  "beautySmooth": "छाला चिल्लो",
+  "beautyBrighten": "छाला उज्यालो",
+  "beautyEven": "छालाको रङ समान",
+  "beautyShine": "चमक कम",
+  "beautySharpen": "स्पष्ट",
+  "beautyNote": "छाला मात्र मिलाइन्छ। अनुहारको आकार कहिल्यै बदलिँदैन।",
+  "beautyOff": "बन्द",
+  "beautyStrictWarning": "राहदानी र लाइसेन्सले सम्पादित फोटो अस्वीकार गर्न सक्छ। हल्का राख्नुहोस् वा बन्द गर्नुहोस्।",
+  "beautyStrictAccept": "तैपनि प्रयोग गर्ने",
+  "beautyLightBadge": "हल्का छाला सुधार मात्र (उज्यालो, रङ, चमक)। अनुहारको आकार उस्तै।"
 }

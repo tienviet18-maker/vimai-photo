@@ -364,6 +364,21 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       }
     }
 
+    // 3b. Skin care the user chose (all 0 unless they ask, or a CV default).
+    //     Only skin inside the face oval changes: eyes, brows, lips and
+    //     hair keep their detail, and nothing changes the shape of the face.
+    if let bz = args["beauty"] as? [String: Double], let f = face {
+      let smooth = Float(bz["smooth"] ?? 0), bright = Float(bz["brighten"] ?? 0)
+      let even = Float(bz["even"] ?? 0), shine = Float(bz["shine"] ?? 0)
+      let sharp = Float(bz["sharpen"] ?? 0)
+      if smooth + bright + even + shine + sharp > 0.001 {
+        applyBeauty(&r, &g, &b, alpha: alpha, W: W, H: H,
+                    face: CGRect(x: (f["left"]! - left) * sx, y: (f["top"]! - top) * sy,
+                                 width: f["width"]! * sx, height: f["height"]! * sy),
+                    smooth: smooth, bright: bright, even: even, shine: shine, sharp: sharp)
+      }
+    }
+
     // 4. Plain background with clean hair edges. The old background colour
     //    is estimated around each pixel and swapped for the new one, which
     //    removes the halo of the old wall that a plain blend leaves in hair.
@@ -451,6 +466,99 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       throw fail(3, "scale failed")
     }
     return image
+  }
+
+  /// Skin smoothing, brightening, even tone, less shine and a little
+  /// sharpening, limited to a soft oval around the face and to skin tones.
+  private func applyBeauty(_ r: inout [Float], _ g: inout [Float], _ b: inout [Float],
+                           alpha: [Float], W: Int, H: Int, face: CGRect,
+                           smooth: Float, bright: Float, even: Float, shine: Float, sharp: Float) {
+    // Oval a little larger than the detected face (forehead, cheeks, jaw).
+    let cx = Float(face.midX), cy = Float(face.midY) - Float(face.height) * 0.02
+    let rx = Float(face.width) * 0.62, ry = Float(face.height) * 0.68
+    let x0 = max(0, Int(cx - rx)), x1 = min(W - 1, Int(cx + rx))
+    let y0 = max(0, Int(cy - ry)), y1 = min(H - 1, Int(cy + ry))
+    guard x1 > x0 + 8, y1 > y0 + 8 else { return }
+    let w = x1 - x0 + 1, h = y1 - y0 + 1, n = w * h
+
+    // Region copies, and a skin weight per pixel (0…1).
+    var cr = [Float](repeating: 0, count: n), cg = cr, cb = cr, skin = cr, oval = cr
+    for y in 0..<h { for x in 0..<w {
+      let i = (y + y0) * W + x + x0, j = y * w + x
+      cr[j] = r[i]; cg[j] = g[i]; cb[j] = b[i]
+      let dx = (Float(x + x0) - cx) / rx, dy = (Float(y + y0) - cy) / ry
+      let o = (1 - smoothstep(0.75, 1, sqrtf(dx * dx + dy * dy))) * alpha[i]
+      oval[j] = o
+      // Skin test in gamma space (YCbCr), soft edges.
+      let sr = powf(min(max(r[i], 0), 1), 1 / 2.2) * 255
+      let sg = powf(min(max(g[i], 0), 1), 1 / 2.2) * 255
+      let sb = powf(min(max(b[i], 0), 1), 1 / 2.2) * 255
+      let cbv = 128 - 0.168736 * sr - 0.331264 * sg + 0.5 * sb
+      let crv = 128 + 0.5 * sr - 0.418688 * sg - 0.081312 * sb
+      let inCb = smoothstep(70, 80, cbv) * (1 - smoothstep(125, 135, cbv))
+      let inCr = smoothstep(128, 136, crv) * (1 - smoothstep(170, 180, crv))
+      skin[j] = o * inCb * inCr
+    } }
+    func lum(_ r: Float, _ g: Float, _ b: Float) -> Float { 0.2126 * r + 0.7152 * g + 0.0722 * b }
+
+    // Even tone: pull colour (not light) toward the wide local average.
+    if even > 0 {
+      var mr = cr, mg = cg, mb = cb
+      let rad = max(Int(face.width) / 10, 4)
+      for _ in 0..<2 { boxBlur(&mr, w, h, rad); boxBlur(&mg, w, h, rad); boxBlur(&mb, w, h, rad) }
+      for j in 0..<n where skin[j] > 0.01 {
+        let l = lum(cr[j], cg[j], cb[j]), lm = max(lum(mr[j], mg[j], mb[j]), 1e-4)
+        let k = 0.45 * even * skin[j], s = l / lm
+        cr[j] += k * (mr[j] * s - cr[j]); cg[j] += k * (mg[j] * s - cg[j]); cb[j] += k * (mb[j] * s - cb[j])
+      }
+    }
+
+    // Smooth: remove fine texture where it is small (pores, blemishes),
+    // keep strong edges (eyes, brows, nostrils, lips).
+    if smooth > 0 {
+      var br = cr, bg = cg, bb = cb
+      let rad = max(Int(face.width) / 55, 2)
+      for _ in 0..<2 { boxBlur(&br, w, h, rad); boxBlur(&bg, w, h, rad); boxBlur(&bb, w, h, rad) }
+      for j in 0..<n where skin[j] > 0.01 {
+        let d = abs(lum(cr[j], cg[j], cb[j]) - lum(br[j], bg[j], bb[j]))
+        let keepEdge = expf(-(d / 0.035) * (d / 0.035))
+        let k = 0.85 * smooth * skin[j] * keepEdge
+        cr[j] += k * (br[j] - cr[j]); cg[j] += k * (bg[j] - cg[j]); cb[j] += k * (bb[j] - cb[j])
+      }
+    }
+
+    // Less shine: soften the brightest skin highlights.
+    if shine > 0 {
+      for j in 0..<n where skin[j] > 0.01 {
+        let l = lum(cr[j], cg[j], cb[j])
+        let k = 1 - 0.35 * shine * skin[j] * smoothstep(0.42, 0.85, l)
+        cr[j] *= k; cg[j] *= k; cb[j] *= k
+      }
+    }
+
+    // Brighter skin, mostly in the shadows so highlights do not clip.
+    if bright > 0 {
+      for j in 0..<n where skin[j] > 0.01 {
+        let l = lum(cr[j], cg[j], cb[j])
+        let k = 1 + 0.4 * bright * skin[j] * (1 - smoothstep(0.35, 0.8, l))
+        cr[j] *= k; cg[j] *= k; cb[j] *= k
+      }
+    }
+
+    // Sharpen eyes, brows and hair edges inside the oval (not skin).
+    if sharp > 0 {
+      var br = cr, bg = cg, bb = cb
+      for _ in 0..<2 { boxBlur(&br, w, h, 2); boxBlur(&bg, w, h, 2); boxBlur(&bb, w, h, 2) }
+      for j in 0..<n where oval[j] > 0.01 {
+        let k = 0.9 * sharp * oval[j] * (1 - 0.7 * skin[j])
+        cr[j] += k * (cr[j] - br[j]); cg[j] += k * (cg[j] - bg[j]); cb[j] += k * (cb[j] - bb[j])
+      }
+    }
+
+    for y in 0..<h { for x in 0..<w {
+      let i = (y + y0) * W + x + x0, j = y * w + x
+      r[i] = cr[j]; g[i] = cg[j]; b[i] = cb[j]
+    } }
   }
 
   private func smoothstep(_ e0: Float, _ e1: Float, _ x: Float) -> Float {

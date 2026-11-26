@@ -190,5 +190,16 @@
   "printTipsTitle": "Tips agar ukurannya pas",
   "savedToMyPhotos": "Tersimpan di Foto saya",
   "sourceMissing": "Foto aslinya sudah tidak ada. Ambil foto baru.",
-  "chooseDocTitle": "Pilih dokumen"
+  "chooseDocTitle": "Pilih dokumen",
+  "tabBeauty": "Kecantikan",
+  "beautySmooth": "Haluskan kulit",
+  "beautyBrighten": "Cerahkan kulit",
+  "beautyEven": "Ratakan warna kulit",
+  "beautyShine": "Kurangi kilap",
+  "beautySharpen": "Pertajam",
+  "beautyNote": "Hanya kulit yang diubah. Bentuk wajah tidak pernah berubah.",
+  "beautyOff": "Mati",
+  "beautyStrictWarning": "Paspor dan SIM bisa menolak foto yang diretus. Gunakan tipis atau matikan.",
+  "beautyStrictAccept": "Tetap gunakan",
+  "beautyLightBadge": "Hanya perawatan kulit ringan (cahaya, warna, kilap). Bentuk wajah tetap."
 }
