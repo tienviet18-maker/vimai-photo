@@ -117,13 +117,12 @@ class _DoneScreenState extends State<DoneScreen> {
           Row(
             children: [
               Container(
-                width: 88,
-                height: sheet == null ? 88 * spec.heightMm / spec.widthMm : 126,
+                width: sheet == null ? 88 : 120,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   boxShadow: [BoxShadow(color: Color(0x2E0F2A30), blurRadius: 16, offset: Offset(0, 6))],
                 ),
-                child: Image.file(File(sheet ?? widget.photoPath), fit: BoxFit.contain),
+                child: Image.file(File(sheet ?? widget.photoPath), fit: BoxFit.fitWidth),
               ),
               const SizedBox(width: 16),
               Expanded(

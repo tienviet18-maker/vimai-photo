@@ -198,7 +198,8 @@ class _SheetScreenState extends State<SheetScreen> {
         ),
       );
     } else {
-      final sheet = paper.sheet;
+      // The layout may turn the sheet sideways to fit more photos.
+      final sheet = _layoutFor(paper).sheet;
       preview = SizedBox(
         height: 300,
         child: Center(
