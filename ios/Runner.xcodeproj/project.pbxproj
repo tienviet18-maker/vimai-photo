@@ -43,6 +43,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7A1F0E0A2EC9000100000006 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh-Hans; path = zh-Hans.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC9000100000007 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh-Hant; path = zh-Hant.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC9000100000008 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC9000100000009 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC900010000000A /* ne */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ne; path = ne.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC900010000000B /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt-BR; path = pt-BR.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC900010000000C /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC900010000000D /* my */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = my; path = my.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC900010000000E /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7A1F0E0A2EC900010000000F /* si */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = si; path = si.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7A1F0E0A2EC9000100000003 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7A1F0E0A2EC9000100000004 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		7A1F0E0A2EC9000100000005 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -205,6 +215,16 @@
 				Base,
 				vi,
 				ja,
+				"zh-Hans",
+				"zh-Hant",
+				ko,
+				fil,
+				ne,
+				"pt-BR",
+				id,
+				my,
+				th,
+				si,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
@@ -328,6 +348,16 @@
 				7A1F0E0A2EC9000100000003 /* en */,
 				7A1F0E0A2EC9000100000004 /* vi */,
 				7A1F0E0A2EC9000100000005 /* ja */,
+				7A1F0E0A2EC9000100000006 /* zh-Hans */,
+				7A1F0E0A2EC9000100000007 /* zh-Hant */,
+				7A1F0E0A2EC9000100000008 /* ko */,
+				7A1F0E0A2EC9000100000009 /* fil */,
+				7A1F0E0A2EC900010000000A /* ne */,
+				7A1F0E0A2EC900010000000B /* pt-BR */,
+				7A1F0E0A2EC900010000000C /* id */,
+				7A1F0E0A2EC900010000000D /* my */,
+				7A1F0E0A2EC900010000000E /* th */,
+				7A1F0E0A2EC900010000000F /* si */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

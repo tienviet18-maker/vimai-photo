@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/format.dart';
+import '../../core/review/review_prompt.dart';
 import '../../core/specs/photo_spec.dart';
 import '../../core/store/photo_store.dart';
 import '../../core/theme.dart';
@@ -10,6 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../../platform/photo_native.dart';
 import '../../widgets/flow_widgets.dart';
 import '../../widgets/print_guide.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Saved to Photos: how to use it (konbini print or online application),
 /// how long the photo stays valid, and a reminder before it runs out.
@@ -52,6 +55,26 @@ class _DoneScreenState extends State<DoneScreen> {
   late SavedPhoto? _saved = widget.saved;
   bool _busy = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _maybeAskForRating();
+  }
+
+  /// The photo is saved: the best moment to ask for a rating. A short pause
+  /// lets the user see "Saved" first.
+  Future<void> _maybeAskForRating() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!await ReviewPrompt(prefs).recordSave()) return;
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
+    if (!mounted) return;
+    try {
+      await widget.native.requestReview();
+    } on PhotoNativeUnavailable {
+      // Only on iPhone.
+    }
+  }
+
   void _home() => Navigator.of(context).popUntil((route) => route.isFirst);
 
   DateTime get _expiry =>
@@ -61,7 +84,7 @@ class _DoneScreenState extends State<DoneScreen> {
     final saved = _saved;
     if (saved == null || _busy) return;
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final store = PhotoStoreScope.maybeOf(context);
     setState(() => _busy = true);
     try {
@@ -95,7 +118,7 @@ class _DoneScreenState extends State<DoneScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final spec = widget.spec;
     final sheet = widget.sheetPath;
     final px = spec.pixelSize();

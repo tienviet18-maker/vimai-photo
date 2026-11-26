@@ -10,12 +10,6 @@ class SettingsScreen extends StatelessWidget {
 
   final LocaleController localeController;
 
-  /// Each language is shown in its own script so anyone can find theirs.
-  static const _nativeNames = {
-    'vi': 'Tiếng Việt',
-    'en': 'English',
-    'ja': '日本語',
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +19,13 @@ class SettingsScreen extends StatelessWidget {
       body: ListenableBuilder(
         listenable: localeController,
         builder: (context, _) {
-          final current = localeController.locale?.languageCode;
+          final current = localeController.locale?.toLanguageTag();
           return RadioGroup<String?>(
             groupValue: current,
             onChanged: (code) => localeController
-                .setLocale(code == null ? null : Locale(code)),
+                .setLocale(code == null
+                    ? null
+                    : LocaleController.supported.firstWhere((l) => l.toLanguageTag() == code)),
             child: ListView(
               children: [
                 ListTile(
@@ -44,8 +40,8 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 for (final locale in LocaleController.supported)
                   RadioListTile<String?>(
-                    value: locale.languageCode,
-                    title: Text(_nativeNames[locale.languageCode]!),
+                    value: locale.toLanguageTag(),
+                    title: Text(LocaleController.nativeNames[locale.toLanguageTag()]!),
                   ),
                 // Developer tool: batch-process a set of photos and show the
                 // measurements. Not shown in store builds.

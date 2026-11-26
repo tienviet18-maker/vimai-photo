@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "Foto 3x4";
+"NSCameraUsageDescription" = "O ViMai Photo usa a câmera para tirar sua foto 3x4. As fotos são processadas no iPhone e não são enviadas.";
+"NSPhotoLibraryAddUsageDescription" = "O ViMai Photo salva sua foto ou folha de impressão em Fotos para imprimir no konbini.";

@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/flow_widgets.dart';
 import '../capture/capture_screen.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Twenty seconds of setup before the camera: light, wall, hair, glasses,
 /// and who holds the phone (which decides the camera).
@@ -33,7 +34,7 @@ class _PrepareScreenState extends State<PrepareScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final spec = widget.spec;
 
     return Scaffold(

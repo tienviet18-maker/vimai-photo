@@ -18,13 +18,22 @@ reader's device language (better conversion), and the app ranks in home
 storefronts (Vietnam, Korea, Taiwan, Indonesia, Brazil, Thailand) where
 people prepare papers before coming to Japan (COE application photos).
 
-Locales: ja, en-US, vi, zh-Hans, zh-Hant, ko, id, pt-BR, th. Filipino,
-Nepali and Burmese are not App Store localizations.
+App Store locales: ja, en-US, vi, zh-Hans, zh-Hant, ko, id, pt-BR, th.
+Nepali, Filipino, Burmese and Sinhala are not among Apple's 50 App Store
+metadata languages, so their speakers see the English product page; the app
+itself (UI, home-screen name, permission prompts) does speak all 13:
+vi, en, ja, zh-Hans, zh-Hant, ko, fil, ne, pt-BR, id, my, th, si. The voice
+guide uses iPhone voices; fil, ne, my and si have none, so it speaks English
+there while the screen stays in the user's language.
 
 Rules: keywords never repeat words already in the name or subtitle (they are
 indexed anyway), never name other apps, comma separated, no spaces after
-commas. The app UI is vi/en/ja: descriptions in the other six languages must
-say so ("The app is in English, Japanese and Vietnamese").
+commas.
+
+Ratings: the app asks for an App Store rating with Apple's own sheet right
+after a photo is saved (1st, 3rd and 8th save, at most once per 60 days; iOS
+shows it at most three times a year). No custom "rate us 5 stars" screen and
+no reward for ratings: App Review rejects both.
 
 Do not distribute in China mainland (needs an ICP filing); Chinese
 (Simplified) still serves Chinese residents of Japan whose phones use it.
@@ -152,45 +161,44 @@ Việc chấp nhận ảnh do nơi nhận hồ sơ quyết định. App không t
 - **Name:** 证件照 日本 - 在留卡·签证·简历
 - **Subtitle:** 护照照片 便利店打印 尺寸精确
 - **Keywords:** 证件照片,一寸照,二寸照,签证照,护照照,简历照片,便利店,打印,白底,蓝底,换背景,自拍,免冠照,ViMai
-- **Promotional text:** 在家拍日本在留卡、简历、护照证件照：自动换白底，按毫米测量尺寸，生成L尺寸照片纸，在便利店打印。应用界面为英语、日语、越南语。
+- **Promotional text:** 在家拍日本在留卡、简历、护照证件照：自动换白底，按毫米测量尺寸，生成L尺寸照片纸，在便利店打印。支持中文界面。
 
 ## Chinese (Traditional, zh-Hant)
 
 - **Name:** 證件照 日本 - 在留卡·簽證·履歷
 - **Subtitle:** 護照照片 超商列印 尺寸精準
 - **Keywords:** 大頭照,證件照片,二吋照,簽證照,護照照片,履歷照,超商,列印,白底,換背景,自拍,ViMai
-- **Promotional text:** 在家拍日本在留卡、履歷、護照證件照：自動換白底，以毫米測量尺寸，產生L尺寸相紙，到超商列印。應用程式介面為英文、日文、越南文。
+- **Promotional text:** 在家拍日本在留卡、履歷、護照證件照：自動換白底，以毫米測量尺寸，產生L尺寸相紙，到超商列印。支援繁體中文介面。
 
 ## Korean (ko)
 
 - **Name:** 증명사진 일본 - 재류카드·비자·이력서
 - **Subtitle:** 여권사진 편의점 인화 정확한 사이즈
 - **Keywords:** 증사,반명함,여권,비자사진,이력서사진,인화,배경,흰배경,셀프,ViMai
-- **Promotional text:** 일본 재류카드·이력서·여권용 증명사진을 집에서. 배경을 흰색으로 바꾸고 mm 단위로 크기를 재서 편의점에서 L판으로 인화하세요. 앱은 영어·일본어·베트남어로 제공됩니다.
+- **Promotional text:** 일본 재류카드·이력서·여권용 증명사진을 집에서. 배경을 흰색으로 바꾸고 mm 단위로 크기를 재서 편의점에서 L판으로 인화하세요. 한국어 지원.
 
 ## Indonesian (id)
 
 - **Name:** Pas Foto Jepang: Visa & CV
 - **Subtitle:** Kartu residen, cetak konbini
 - **Keywords:** pasfoto,foto paspor,foto visa,zairyu,izin tinggal,lamaran kerja,latar putih,cetak foto,ViMai
-- **Promotional text:** Pas foto zairyu, CV dan paspor Jepang dari rumah: latar polos, ukuran dalam mm, cetak lembar L di konbini. Aplikasi berbahasa Inggris, Jepang, Vietnam.
+- **Promotional text:** Pas foto zairyu, CV dan paspor Jepang dari rumah: latar polos, ukuran dalam mm, cetak lembar L di konbini. Aplikasi berbahasa Indonesia.
 
 ## Portuguese (Brazil, pt-BR)
 
 - **Name:** Foto 3x4 Japão: Visto e CV
 - **Subtitle:** Zairyu, imprima no konbini
 - **Keywords:** foto documento,foto passaporte,foto visto,residence card,rirekisho,currículo,fundo branco,ViMai
-- **Promotional text:** Foto 3x4 em casa para zairyu card, rirekisho e passaporte: fundo liso, tamanho medido em mm, folha L para o konbini. App em inglês, japonês e vietnamita.
+- **Promotional text:** Foto 3x4 em casa para zairyu card, rirekisho e passaporte: fundo liso, tamanho medido em mm, folha L para o konbini. App em português.
 
 ## Thai (th)
 
 - **Name:** รูปติดบัตรญี่ปุ่น วีซ่า CV
 - **Subtitle:** รูปพาสปอร์ต พิมพ์ที่คอนบินิ
 - **Keywords:** รูปถ่ายติดบัตร,รูปวีซ่า,พาสปอร์ต,ไซริวการ์ด,บัตรไซริว,สมัครงาน,พื้นหลังขาว,ปริ้นรูป,ViMai
-- **Promotional text:** ถ่ายรูปติดบัตรสำหรับไซริวการ์ด เรซูเม่ และพาสปอร์ตในญี่ปุ่นได้ที่บ้าน พื้นหลังเรียบ วัดขนาดเป็นมม. พิมพ์แผ่น L ที่คอนบินิ แอปเป็นภาษาอังกฤษ ญี่ปุ่น และเวียดนาม
+- **Promotional text:** ถ่ายรูปติดบัตรสำหรับไซริวการ์ด เรซูเม่ และพาสปอร์ตในญี่ปุ่นได้ที่บ้าน พื้นหลังเรียบ วัดขนาดเป็นมม. พิมพ์แผ่น L ที่คอนบินิ รองรับภาษาไทย
 
-Descriptions for these six locales: translate the English description and
-add the line about the app's languages. Have a native speaker read zh, ko,
+Descriptions for these six locales: translate the English description. Have a native speaker read zh, ko,
 id, pt-BR and th before submitting.
 
 ## Screenshots

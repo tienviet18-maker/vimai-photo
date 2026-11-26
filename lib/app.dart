@@ -38,13 +38,7 @@ class VimaiPhotoApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         // Unsupported device languages fall back to English.
-        localeResolutionCallback: (device, supported) {
-          if (device == null) return const Locale('en');
-          return supported
-                  .where((l) => l.languageCode == device.languageCode)
-                  .firstOrNull ??
-              const Locale('en');
-        },
+        localeResolutionCallback: (device, _) => resolveAppLocale(device),
         builder: (context, child) => PhotoStoreScope(store: photoStore, child: child!),
         home: AppShell(
           specRepository: specRepository,

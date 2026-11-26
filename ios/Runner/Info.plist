@@ -19,6 +19,16 @@
 		<string>vi</string>
 		<string>en</string>
 		<string>ja</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+		<string>ko</string>
+		<string>fil</string>
+		<string>ne</string>
+		<string>pt-BR</string>
+		<string>id</string>
+		<string>my</string>
+		<string>th</string>
+		<string>si</string>
 	</array>
 	<key>CFBundleName</key>
 	<string>vimai_photo</string>

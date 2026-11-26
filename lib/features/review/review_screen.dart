@@ -14,6 +14,7 @@ import '../../platform/photo_native.dart';
 import '../../widgets/flow_widgets.dart';
 import 'processing_view.dart';
 import '../sheet/sheet_screen.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Step 2 of 3: the photo already cut to the document's exact size, a
 /// checklist against its rules, and the few adjustments that are allowed.
@@ -160,7 +161,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final spec = widget.spec;
 
     if (_rendered == null && _error == null) {

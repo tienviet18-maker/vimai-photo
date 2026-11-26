@@ -4,6 +4,7 @@ import '../core/spec_l10n.dart';
 import '../core/specs/photo_spec.dart';
 import '../core/theme.dart';
 import '../l10n/app_localizations.dart';
+import '../core/locale/locale_controller.dart';
 
 /// Bottom sheet listing the documents; returns the one tapped.
 Future<PhotoSpec?> showDocumentPicker(
@@ -11,7 +12,7 @@ Future<PhotoSpec?> showDocumentPicker(
   List<PhotoSpec> specs, {
   String? selectedId,
 }) {
-  final lang = Localizations.localeOf(context).languageCode;
+  final lang = langOf(context);
   final l = AppLocalizations.of(context);
   return showModalBottomSheet<PhotoSpec>(
     context: context,

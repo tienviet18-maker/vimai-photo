@@ -4,6 +4,7 @@ import ImageIO
 import Photos
 import PhotosUI
 import UIKit
+import StoreKit
 import UniformTypeIdentifiers
 import UserNotifications
 import Vision
@@ -70,6 +71,13 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       share(path: args["path"] as! String, result: result)
     case "pickPhoto":
       pickPhoto(limit: args["limit"] as? Int ?? 1, result: result)
+    case "requestReview":
+      DispatchQueue.main.async {
+        let scene = UIApplication.shared.connectedScenes
+          .first { $0.activationState == .foregroundActive } as? UIWindowScene
+        if let scene { SKStoreReviewController.requestReview(in: scene) }
+        result(nil)
+      }
     case "appDir":
       result(appDir())
     case "scheduleReminder":

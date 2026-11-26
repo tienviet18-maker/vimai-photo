@@ -7,7 +7,17 @@
       "names": {
         "en": "Residence card / visa application",
         "vi": "Thẻ cư trú / gia hạn, đổi visa",
-        "ja": "在留カード・在留申請"
+        "ja": "在留カード・在留申請",
+        "zh": "在留卡 / 签证申请",
+        "ko": "재류카드 / 비자 신청",
+        "fil": "Residence card / visa",
+        "ne": "रेसिडेन्स कार्ड / भिसा आवेदन",
+        "pt": "Zairyu card / pedido de visto",
+        "id": "Kartu residen / pengajuan visa",
+        "my": "နေထိုင်ခွင့်ကတ် / ဗီဇာ လျှောက်ထားခြင်း",
+        "th": "ไซริวการ์ด / ยื่นวีซ่า",
+        "si": "පදිංචි කාඩ්පත / වීසා අයදුම්",
+        "zh-Hant": "在留卡 / 簽證申請"
       },
       "jaName": "在留カード・在留申請",
       "icon": "badge",
@@ -16,9 +26,19 @@
       "headHeightMm": 25,
       "headToleranceMm": 3,
       "topMarginMm": null,
-      "backgrounds": ["white", "lightBlue"],
+      "backgrounds": [
+        "white",
+        "lightBlue"
+      ],
       "validityMonths": 6,
-      "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "eyesVisible", "nameOnBack"],
+      "rules": [
+        "onlyYou",
+        "noHat",
+        "frontFacing",
+        "noShadow",
+        "eyesVisible",
+        "nameOnBack"
+      ],
       "pro": false,
       "verified": true,
       "sourceUrl": "https://www.moj.go.jp/isa/applications/status/photo_info_00002.html",
@@ -29,7 +49,17 @@
       "names": {
         "en": "Résumé (rirekisho)",
         "vi": "Sơ yếu lý lịch (履歴書)",
-        "ja": "履歴書"
+        "ja": "履歴書",
+        "zh": "简历（履历书）",
+        "ko": "이력서 (리레키쇼)",
+        "fil": "Résumé (rirekisho)",
+        "ne": "बायोडाटा (रिरेकिस्यो)",
+        "pt": "Currículo (rirekisho)",
+        "id": "CV (rirekisho)",
+        "my": "ကိုယ်ရေးရာဇဝင် (rirekisho)",
+        "th": "เรซูเม่ (ริเรคิโชะ)",
+        "si": "ජීව දත්ත (rirekisho)",
+        "zh-Hant": "履歷表（履歷書）"
       },
       "jaName": "履歴書",
       "icon": "work",
@@ -38,9 +68,16 @@
       "headHeightMm": 25,
       "headToleranceMm": 3,
       "topMarginMm": null,
-      "backgrounds": ["white", "lightBlue"],
+      "backgrounds": [
+        "white",
+        "lightBlue"
+      ],
       "validityMonths": 3,
-      "rules": ["onlyYou", "noHat", "frontFacing"],
+      "rules": [
+        "onlyYou",
+        "noHat",
+        "frontFacing"
+      ],
       "pro": false,
       "verified": true,
       "sourceUrl": null,
@@ -51,7 +88,17 @@
       "names": {
         "en": "My Number card",
         "vi": "Thẻ My Number",
-        "ja": "マイナンバーカード"
+        "ja": "マイナンバーカード",
+        "zh": "个人编号卡（My Number）",
+        "ko": "마이넘버 카드",
+        "fil": "My Number card",
+        "ne": "माइ नम्बर कार्ड",
+        "pt": "Cartão My Number",
+        "id": "Kartu My Number",
+        "my": "My Number ကတ်",
+        "th": "บัตร My Number",
+        "si": "My Number කාඩ්පත",
+        "zh-Hant": "個人編號卡（My Number）"
       },
       "jaName": "マイナンバーカード",
       "icon": "credit_card",
@@ -59,9 +106,18 @@
       "widthMm": 35,
       "headHeightMm": null,
       "topMarginMm": null,
-      "backgrounds": ["white", "lightBlue"],
+      "backgrounds": [
+        "white",
+        "lightBlue"
+      ],
       "validityMonths": 6,
-      "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "nameOnBack"],
+      "rules": [
+        "onlyYou",
+        "noHat",
+        "frontFacing",
+        "noShadow",
+        "nameOnBack"
+      ],
       "pro": false,
       "verified": true,
       "sourceUrl": "https://www.kojinbango-card.go.jp",
@@ -72,7 +128,17 @@
       "names": {
         "en": "Japanese passport",
         "vi": "Hộ chiếu Nhật",
-        "ja": "日本のパスポート"
+        "ja": "日本のパスポート",
+        "zh": "日本护照",
+        "ko": "일본 여권",
+        "fil": "Pasaporte ng Japan",
+        "ne": "जापानी राहदानी",
+        "pt": "Passaporte japonês",
+        "id": "Paspor Jepang",
+        "my": "ဂျပန် ပတ်စ်ပို့",
+        "th": "พาสปอร์ตญี่ปุ่น",
+        "si": "ජපාන ගමන් බලපත්‍රය",
+        "zh-Hant": "日本護照"
       },
       "jaName": "パスポート",
       "icon": "flight",
@@ -82,9 +148,18 @@
       "headToleranceMm": 2,
       "topMarginMm": 4,
       "topMarginToleranceMm": 2,
-      "backgrounds": ["white"],
+      "backgrounds": [
+        "white"
+      ],
       "validityMonths": 6,
-      "rules": ["onlyYou", "noHat", "frontFacing", "noShadow", "eyesVisible", "noEdit"],
+      "rules": [
+        "onlyYou",
+        "noHat",
+        "frontFacing",
+        "noShadow",
+        "eyesVisible",
+        "noEdit"
+      ],
       "pro": false,
       "verified": true,
       "sourceUrl": "https://www.mofa.go.jp/mofaj/toko/passport/ic_photo.html",
@@ -95,7 +170,17 @@
       "names": {
         "en": "Japanese driver's license",
         "vi": "Bằng lái xe Nhật",
-        "ja": "運転免許証"
+        "ja": "運転免許証",
+        "zh": "日本驾照",
+        "ko": "일본 운전면허증",
+        "fil": "Lisensya sa pagmamaneho (Japan)",
+        "ne": "जापानी ड्राइभिङ लाइसेन्स",
+        "pt": "Carteira de motorista japonesa",
+        "id": "SIM Jepang",
+        "my": "ဂျပန် ယာဉ်မောင်းလိုင်စင်",
+        "th": "ใบขับขี่ญี่ปุ่น",
+        "si": "ජපාන රියදුරු බලපත්‍රය",
+        "zh-Hant": "日本駕照"
       },
       "jaName": "運転免許証",
       "icon": "directions_car",
@@ -103,9 +188,18 @@
       "widthMm": 24,
       "headHeightMm": null,
       "topMarginMm": null,
-      "backgrounds": ["lightBlue", "white"],
+      "backgrounds": [
+        "lightBlue",
+        "white"
+      ],
       "validityMonths": 6,
-      "rules": ["noHat", "frontFacing", "upperBody", "noEdit", "eyesVisible"],
+      "rules": [
+        "noHat",
+        "frontFacing",
+        "upperBody",
+        "noEdit",
+        "eyesVisible"
+      ],
       "pro": false,
       "verified": true,
       "sourceUrl": "https://www.pref.shimane.lg.jp/police/03_drivers_license/various_fees/oshirase/shinsei_photo.html",
@@ -116,7 +210,17 @@
       "names": {
         "en": "Vietnamese passport (embassy in Japan)",
         "vi": "Hộ chiếu Việt Nam (làm tại Nhật)",
-        "ja": "ベトナムのパスポート"
+        "ja": "ベトナムのパスポート",
+        "zh": "越南护照（在日本办理）",
+        "ko": "베트남 여권 (일본에서 신청)",
+        "fil": "Pasaporte ng Vietnam (sa Japan)",
+        "ne": "भियतनामी राहदानी (जापानमा)",
+        "pt": "Passaporte vietnamita (no Japão)",
+        "id": "Paspor Vietnam (di Jepang)",
+        "my": "ဗီယက်နမ် ပတ်စ်ပို့ (ဂျပန်တွင်)",
+        "th": "พาสปอร์ตเวียดนาม (ทำที่ญี่ปุ่น)",
+        "si": "වියට්නාම ගමන් බලපත්‍රය (ජපානයේ)",
+        "zh-Hant": "越南護照（在日本辦理）"
       },
       "jaName": "ベトナム旅券",
       "icon": "flight",
@@ -124,9 +228,15 @@
       "widthMm": 40,
       "headHeightMm": null,
       "topMarginMm": null,
-      "backgrounds": ["white"],
+      "backgrounds": [
+        "white"
+      ],
       "validityMonths": 6,
-      "rules": ["onlyYou", "noHat", "frontFacing"],
+      "rules": [
+        "onlyYou",
+        "noHat",
+        "frontFacing"
+      ],
       "pro": false,
       "verified": false,
       "sourceUrl": null,
@@ -137,7 +247,17 @@
       "names": {
         "en": "US visa",
         "vi": "Visa Mỹ",
-        "ja": "アメリカのビザ"
+        "ja": "アメリカのビザ",
+        "zh": "美国签证",
+        "ko": "미국 비자",
+        "fil": "US visa",
+        "ne": "अमेरिकी भिसा",
+        "pt": "Visto americano",
+        "id": "Visa AS",
+        "my": "အမေရိကန် ဗီဇာ",
+        "th": "วีซ่าอเมริกา",
+        "si": "ඇමරිකානු වීසා",
+        "zh-Hant": "美國簽證"
       },
       "jaName": "米国ビザ",
       "icon": "public",
@@ -145,9 +265,16 @@
       "widthMm": 51,
       "headHeightMm": null,
       "topMarginMm": null,
-      "backgrounds": ["white"],
+      "backgrounds": [
+        "white"
+      ],
       "validityMonths": 6,
-      "rules": ["onlyYou", "frontFacing", "noShadow", "noEdit"],
+      "rules": [
+        "onlyYou",
+        "frontFacing",
+        "noShadow",
+        "noEdit"
+      ],
       "pro": false,
       "verified": false,
       "sourceUrl": "https://travel.state.gov/content/travel/en/us-visas/visa-information-resources/photos.html",

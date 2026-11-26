@@ -110,6 +110,10 @@ class PhotoNative {
 
   Future<void> clearCache() => _call<void>('clearCache');
 
+  /// Apple's own rating sheet. iOS decides whether it actually appears
+  /// (at most three times a year), so this never blocks or promises anything.
+  Future<void> requestReview() => _call<void>('requestReview');
+
   /// Folder for saved photos (Application Support/photos). Kept by iOS,
   /// unlike the temporary folder render output goes to.
   Future<String> appDir() async => (await _call<String>('appDir'))!;

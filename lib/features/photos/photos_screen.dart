@@ -14,6 +14,7 @@ import '../../widgets/flow_widgets.dart';
 import '../prepare/prepare_screen.dart';
 import '../review/review_screen.dart';
 import '../sheet/sheet_screen.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Actions on a saved photo, shared by My photos and the home screen.
 class SavedPhotoActions {
@@ -184,7 +185,7 @@ class SavedPhotoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final now = DateTime.now();
     final expiry = expiryOf(photo.takenAt, spec.validityMonths);
     final status = expiryStatus(expiry, now);
