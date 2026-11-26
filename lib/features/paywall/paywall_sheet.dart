@@ -108,11 +108,13 @@ class _PaywallSheetState extends State<PaywallSheet> {
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, height: 1.25),
               ),
               const SizedBox(height: 6),
-              Text(
-                widget.reason == SaveDecision.needsUnlockForBeauty ? l.payWhyBeauty : l.payWhyFree,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: AppColors.muted, height: 1.4),
-              ),
+              if (widget.reason == SaveDecision.needsUnlockForBeauty ||
+                  widget.purchases.freeSavesUsed >= Purchases.freeSaves)
+                Text(
+                  widget.reason == SaveDecision.needsUnlockForBeauty ? l.payWhyBeauty : l.payWhyFree,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13, color: AppColors.muted, height: 1.4),
+                ),
               const SizedBox(height: 18),
               _Benefit(icon: Icons.all_inclusive, text: l.payBenefitSave),
               _Benefit(icon: Icons.auto_awesome_outlined, text: l.payBenefitBeauty),
