@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vimai_photo/app.dart';
 import 'package:vimai_photo/core/locale/locale_controller.dart';
 import 'package:vimai_photo/core/specs/spec_repository.dart';
+import 'package:vimai_photo/core/purchase/purchases.dart';
 import 'package:vimai_photo/core/store/photo_store.dart';
 
 /// Serves the real spec file synchronously, so no real I/O has to finish
@@ -32,6 +33,7 @@ Future<void> _pumpApp(WidgetTester tester, {String? locale}) async {
       localeController: LocaleController(prefs),
       specRepository: SpecRepository(bundle: _FileBundle()),
       photoStore: PhotoStore(prefs, directory: () async => Directory.systemTemp.path),
+      purchases: Purchases(prefs),
     ),
   );
   await tester.pumpAndSettle();

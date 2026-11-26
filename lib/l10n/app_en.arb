@@ -459,5 +459,33 @@
   "beautyStrictWarning": "Passport and licence offices may refuse retouched photos. Keep it light, or leave it off.",
   "beautyStrictAccept": "Use beauty anyway",
   "beautyLightBadge": "Light skin care only (light, tone, shine). Face shape unchanged.",
-  "beautyLips": "Lip colour"
+  "beautyLips": "Lip colour",
+  "payTitle": "Unlock ViMai Photo for good",
+  "payWhyFree": "Your free photo is used. Unlock once to save and print as many as you need.",
+  "payWhyBeauty": "Beauty is part of the unlock. Unlock once to save this photo with it.",
+  "payBenefitSave": "Save and print unlimited photos, every document",
+  "payBenefitBeauty": "Beauty: smooth skin, brighten, even tone, lips",
+  "payBenefitPhotos": "My photos: reprint, remake for another document, reminders",
+  "payBenefitNoAds": "No ads, no subscription",
+  "payButton": "Unlock for {price}",
+  "payLoadingPrice": "Loading price…",
+  "payOneTime": "One-time purchase. No subscription, no renewal.",
+  "restoreButton": "Restore purchase",
+  "restoreFound": "Purchase restored. Thank you!",
+  "restoreNone": "No earlier purchase found on this Apple Account.",
+  "payThanks": "Unlocked. Thank you!",
+  "payPending": "Waiting for approval (Ask to Buy). It unlocks by itself once approved.",
+  "payNetwork": "No connection to the App Store. Please try again.",
+  "payUnavailable": "The App Store is not available right now. Please try again later.",
+  "payFailed": "The purchase did not go through. You were not charged.",
+  "payBeautyFreeHint": "Or turn Beauty off and save your free photo.",
+  "payUnlockedTitle": "Unlocked for good",
+  "payUnlockedSub": "Thank you for supporting ViMai Photo.",
+  "@payButton": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

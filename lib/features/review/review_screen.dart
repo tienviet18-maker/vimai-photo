@@ -159,14 +159,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
   }
 
-  Future<void> _saveSingle() async {
-    final l = AppLocalizations.of(context);
-    final path = _rendered;
-    if (path == null) return;
-    final ok = await widget.native.saveToPhotos(path);
-    if (mounted) showSnack(context, ok ? l.savedToPhotos : l.saveFailed);
-  }
-
   void _next() {
     final path = _rendered;
     if (path == null) return;
@@ -176,6 +168,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           spec: widget.spec,
           photoPath: path,
           sourcePath: widget.shots[_index],
+          beautyApplied: !_beauty.isNone,
           native: widget.native,
         ),
       ),
@@ -306,14 +299,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       icon: const Icon(Icons.refresh, size: 18),
                       label: Text(l.retake),
                       onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.download_outlined, size: 18),
-                      label: Text(l.saveSingle),
-                      onPressed: _rendered == null || _busy ? null : _saveSingle,
                     ),
                   ),
                 ],

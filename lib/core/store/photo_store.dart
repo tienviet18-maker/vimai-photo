@@ -16,6 +16,7 @@ class SavedPhoto {
     required this.takenAt,
     this.sourceFile,
     this.remind = false,
+    this.beauty = false,
   });
 
   factory SavedPhoto.fromJson(Map<String, dynamic> j) => SavedPhoto(
@@ -25,6 +26,7 @@ class SavedPhoto {
         sourceFile: j['source'] as String?,
         takenAt: DateTime.parse(j['takenAt'] as String),
         remind: j['remind'] as bool? ?? false,
+        beauty: j['beauty'] as bool? ?? false,
       );
 
   final String id;
@@ -40,6 +42,9 @@ class SavedPhoto {
   /// A reminder is scheduled before the photo gets too old.
   final bool remind;
 
+  /// Skin care was applied (reprinting it needs the unlock).
+  final bool beauty;
+
   SavedPhoto copyWith({bool? remind}) => SavedPhoto(
         id: id,
         specId: specId,
@@ -47,6 +52,7 @@ class SavedPhoto {
         sourceFile: sourceFile,
         takenAt: takenAt,
         remind: remind ?? this.remind,
+        beauty: beauty,
       );
 
   Map<String, Object?> toJson() => {
@@ -56,6 +62,7 @@ class SavedPhoto {
         if (sourceFile != null) 'source': sourceFile,
         'takenAt': takenAt.toIso8601String(),
         'remind': remind,
+        'beauty': beauty,
       };
 }
 
@@ -131,6 +138,7 @@ class PhotoStore extends ChangeNotifier {
     required String photoPath,
     String? sourcePath,
     DateTime? takenAt,
+    bool beauty = false,
   }) async {
     final dir = await _folder();
     final id = DateTime.now().microsecondsSinceEpoch.toString();
@@ -148,6 +156,7 @@ class PhotoStore extends ChangeNotifier {
       photoFile: photoFile,
       sourceFile: sourceFile,
       takenAt: takenAt ?? DateTime.now(),
+      beauty: beauty,
     );
     _items.insert(0, saved);
     await _write();

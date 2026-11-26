@@ -11,6 +11,8 @@ import '../../l10n/app_localizations.dart';
 import '../../platform/photo_native.dart';
 import '../../widgets/flow_widgets.dart';
 import '../done/done_screen.dart';
+import '../paywall/paywall_sheet.dart';
+import '../../core/purchase/purchases.dart';
 
 enum PaperSize { l, twoL }
 
@@ -38,6 +40,7 @@ class SheetScreen extends StatefulWidget {
     required this.photoPath,
     this.sourcePath,
     this.savedPhoto,
+    this.beautyApplied = false,
     this.native = const PhotoNative(),
   });
 
@@ -51,6 +54,9 @@ class SheetScreen extends StatefulWidget {
 
   /// Set when reprinting from My photos: nothing new is stored.
   final SavedPhoto? savedPhoto;
+
+  /// Skin care was applied to [photoPath] (part of the unlock).
+  final bool beautyApplied;
   final PhotoNative native;
 
   @override
@@ -111,8 +117,12 @@ class _SheetScreenState extends State<SheetScreen> {
     final paper = _output.paper;
     final path = paper == null ? widget.photoPath : _sheetPath;
     if (path == null) return;
+    final beauty = widget.beautyApplied || (widget.savedPhoto?.beauty ?? false);
+    if (!await ensureCanSave(context, beauty: beauty) || !mounted) return;
+    final purchases = PurchasesScope.maybeOf(context);
     setState(() => _saving = true);
     final ok = await widget.native.saveToPhotos(path);
+    if (ok) await purchases?.recordSave();
     SavedPhoto? saved = widget.savedPhoto;
     if (ok && saved == null && mounted) {
       final store = PhotoStoreScope.maybeOf(context);
@@ -121,6 +131,7 @@ class _SheetScreenState extends State<SheetScreen> {
           specId: widget.spec.id,
           photoPath: widget.photoPath,
           sourcePath: widget.sourcePath,
+          beauty: widget.beautyApplied,
         );
       } on FileSystemException {
         saved = null;

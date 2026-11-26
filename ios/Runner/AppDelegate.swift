@@ -57,6 +57,92 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     channel.setMethodCallHandler { [weak self] call, result in
       self?.handle(call, result: result)
     }
+    listenForTransactions()
+  }
+
+  deinit { transactionUpdates?.cancel() }
+
+  // MARK: in-app purchase (StoreKit 2)
+  //
+  // One non-consumable unlock. Apple signs every transaction and StoreKit
+  // checks that signature on the device (`.verified`), so no server is in
+  // the path: a purchase unlocks even offline, and restoring works on any
+  // iPhone signed in with the same Apple Account.
+
+  static let unlockID = "com.vimai.photo.unlock"
+  private var transactionUpdates: Task<Void, Never>?
+
+  /// Purchases finished outside the app (Ask to Buy, another device,
+  /// a refund) arrive here; each is finished and reported to Flutter.
+  private func listenForTransactions() {
+    transactionUpdates = Task.detached { [weak self] in
+      for await update in Transaction.updates {
+        guard case .verified(let transaction) = update else { continue }
+        await transaction.finish()
+        let unlocked = await PhotoNative.isUnlocked()
+        DispatchQueue.main.async { self?.channel.invokeMethod("iapChanged", arguments: unlocked) }
+      }
+    }
+  }
+
+  static func isUnlocked() async -> Bool {
+    for await entitlement in Transaction.currentEntitlements {
+      if case .verified(let t) = entitlement, t.productID == unlockID, t.revocationDate == nil {
+        return true
+      }
+    }
+    return false
+  }
+
+  private func reply(_ result: @escaping FlutterResult, _ value: Any?) {
+    DispatchQueue.main.async { result(value) }
+  }
+
+  private func storeError(_ code: String, _ error: Error? = nil) -> FlutterError {
+    FlutterError(code: code, message: error?.localizedDescription, details: nil)
+  }
+
+  private func handleStore(_ method: String, result: @escaping FlutterResult) {
+    Task {
+      do {
+        switch method {
+        case "iapProduct":
+          let product = try await Product.products(for: [Self.unlockID]).first
+          reply(result, product.map { ["price": $0.displayPrice, "name": $0.displayName] })
+        case "iapUnlocked":
+          reply(result, await Self.isUnlocked())
+        case "iapRestore":
+          try await AppStore.sync()
+          reply(result, await Self.isUnlocked())
+        case "iapPurchase":
+          guard let product = try await Product.products(for: [Self.unlockID]).first else {
+            return reply(result, storeError("unavailable"))
+          }
+          switch try await product.purchase() {
+          case .success(let verification):
+            guard case .verified(let transaction) = verification else {
+              return reply(result, storeError("unverified"))
+            }
+            await transaction.finish()
+            reply(result, "purchased")
+          case .userCancelled:
+            reply(result, "cancelled")
+          case .pending:
+            reply(result, "pending")
+          @unknown default:
+            reply(result, "cancelled")
+          }
+        default:
+          reply(result, FlutterMethodNotImplemented)
+        }
+      } catch StoreKitError.userCancelled {
+        reply(result, method == "iapPurchase" ? "cancelled" : storeError("cancelled"))
+      } catch StoreKitError.networkError(let e) {
+        reply(result, storeError("network", e))
+      } catch {
+        reply(result, storeError("failed", error))
+      }
+    }
   }
 
   private func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -74,6 +160,8 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       share(path: args["path"] as! String, result: result)
     case "pickPhoto":
       pickPhoto(limit: args["limit"] as? Int ?? 1, result: result)
+    case "iapProduct", "iapUnlocked", "iapRestore", "iapPurchase":
+      handleStore(call.method, result: result)
     case "requestReview":
       DispatchQueue.main.async {
         let scene = UIApplication.shared.connectedScenes
