@@ -73,13 +73,30 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _busy = false;
   int _ticket = 0;
 
+  /// When the big preview scrolls away (while using the sliders), a small
+  /// copy stays pinned in the corner so every change can still be seen.
+  final _scroll = ScrollController();
+  bool _pinPreview = false;
+
   EditLevel get _level => editLevelFor(widget.spec);
   bool get _replaceBackground =>
       _level != EditLevel.strict || _strictBackgroundAccepted;
 
   @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final pin = _scroll.offset > 260;
+    if (pin != _pinPreview) setState(() => _pinPreview = pin);
+  }
+
+  @override
   void initState() {
     super.initState();
+    _scroll.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _process());
   }
 
@@ -192,7 +209,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
         children: [
           const StepHeader(current: 1),
           Expanded(
-            child: ListView(
+            child: Stack(
+              children: [
+                ListView(
+              controller: _scroll,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               children: [
                 _PreviewWell(
@@ -244,6 +264,25 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
                 const SizedBox(height: 12),
                 _tabBody(l),
+              ],
+            ),
+                Positioned(
+                  top: 8,
+                  right: 12,
+                  child: IgnorePointer(
+                    ignoring: !_pinPreview,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 180),
+                      opacity: _pinPreview && _rendered != null ? 1 : 0,
+                      child: _PinnedPreview(
+                        path: _rendered,
+                        beforePath: _beforePath,
+                        busy: _busy,
+                        aspect: spec.widthMm / spec.heightMm,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -848,7 +887,7 @@ class _SliderRow extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 96,
+          width: 116,
           child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ),
         Expanded(
@@ -898,6 +937,53 @@ class _NoRetouchBadge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Small copy of the result, pinned while the sliders are in view.
+/// Press and hold to see the photo before correction.
+class _PinnedPreview extends StatefulWidget {
+  const _PinnedPreview({required this.path, required this.beforePath, required this.busy, required this.aspect});
+
+  final String? path;
+  final String? beforePath;
+  final bool busy;
+  final double aspect;
+
+  @override
+  State<_PinnedPreview> createState() => _PinnedPreviewState();
+}
+
+class _PinnedPreviewState extends State<_PinnedPreview> {
+  bool _holding = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final path = _holding && widget.beforePath != null ? widget.beforePath : widget.path;
+    const h = 150.0;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _holding = true),
+      onTapUp: (_) => setState(() => _holding = false),
+      onTapCancel: () => setState(() => _holding = false),
+      child: Container(
+        width: h * widget.aspect,
+        height: h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [BoxShadow(color: Color(0x400F2A30), blurRadius: 14, offset: Offset(0, 4))],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (path != null) Image.file(File(path), fit: BoxFit.cover, gaplessPlayback: true),
+            if (widget.busy)
+              const Center(child: SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.5))),
+          ],
+        ),
       ),
     );
   }
