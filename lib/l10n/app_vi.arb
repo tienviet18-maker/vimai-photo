@@ -214,5 +214,6 @@
   "beautyOff": "Tắt",
   "beautyStrictWarning": "Hộ chiếu và bằng lái có thể bị từ chối nếu ảnh chỉnh mặt. Hãy để nhẹ, hoặc tắt.",
   "beautyStrictAccept": "Vẫn dùng làm đẹp",
-  "beautyLightBadge": "Chỉ làm đẹp da nhẹ (sáng, đều màu, bóng dầu). Giữ nguyên dáng mặt."
+  "beautyLightBadge": "Chỉ làm đẹp da nhẹ (sáng, đều màu, bóng dầu). Giữ nguyên dáng mặt.",
+  "beautyLips": "Màu môi"
 }

@@ -201,5 +201,6 @@
   "beautyOff": "Off",
   "beautyStrictWarning": "Maaaring tanggihan ng passport at lisensya ang ni-retouch na litrato. Gawing magaan o i-off.",
   "beautyStrictAccept": "Gamitin pa rin",
-  "beautyLightBadge": "Magaan na pag-aayos ng balat lang (liwanag, kulay, kintab). Hindi binago ang hugis ng mukha."
+  "beautyLightBadge": "Magaan na pag-aayos ng balat lang (liwanag, kulay, kintab). Hindi binago ang hugis ng mukha.",
+  "beautyLips": "Kulay ng labi"
 }

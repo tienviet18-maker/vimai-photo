@@ -201,5 +201,6 @@
   "beautyOff": "Desligar",
   "beautyStrictWarning": "Passaporte e carteira de motorista podem recusar fotos retocadas. Use pouco ou desligue.",
   "beautyStrictAccept": "Usar mesmo assim",
-  "beautyLightBadge": "Só um cuidado leve com a pele (luz, tom, brilho). Rosto sem alteração."
+  "beautyLightBadge": "Só um cuidado leve com a pele (luz, tom, brilho). Rosto sem alteração.",
+  "beautyLips": "Cor dos lábios"
 }

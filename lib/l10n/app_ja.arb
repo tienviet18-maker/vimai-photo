@@ -214,5 +214,6 @@
   "beautyOff": "オフ",
   "beautyStrictWarning": "パスポートや運転免許証では、修整した写真は受け付けられないことがあります。控えめにするか、オフにしてください。",
   "beautyStrictAccept": "それでも美肌を使う",
-  "beautyLightBadge": "軽い美肌補正のみ（明るさ・肌色・テカリ）。顔の形はそのままです。"
+  "beautyLightBadge": "軽い美肌補正のみ（明るさ・肌色・テカリ）。顔の形はそのままです。",
+  "beautyLips": "唇の色"
 }

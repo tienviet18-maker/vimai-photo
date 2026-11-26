@@ -45,6 +45,9 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
 
   /// Upright image and person mask per source path, so sliders re-render fast.
   private var cache: [String: Source] = [:]
+  /// Lip outlines from `analyze`, in source pixels (origin top left):
+  /// outer edge, and the open mouth inside it to leave teeth alone.
+  private var lipsCache: [String: (outer: [CGPoint], inner: [CGPoint])] = [:]
   private var pickResult: FlutterResult?
   private var pickLimit = 1
 
@@ -86,7 +89,7 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [args["id"] as! String])
       result(nil)
     case "clearCache":
-      queue.async { self.cache.removeAll() }
+      queue.async { self.cache.removeAll(); self.lipsCache.removeAll() }
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
@@ -178,6 +181,18 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     if let roll = face.roll { out["roll"] = roll.doubleValue * 180 / .pi }
     if let yaw = face.yaw { out["yaw"] = yaw.doubleValue * 180 / .pi }
     if let pitch = face.pitch { out["pitch"] = pitch.doubleValue * 180 / .pi }
+
+    // Lips, for the optional lip colour.
+    func toSource(_ r: VNFaceLandmarkRegion2D?) -> [CGPoint] {
+      guard let r else { return [] }
+      return r.normalizedPoints.map {
+        CGPoint(x: (box.minX + $0.x * box.width) * w, y: (1 - (box.minY + $0.y * box.height)) * h)
+      }
+    }
+    let outerLips = toSource(face.landmarks?.outerLips)
+    if outerLips.count > 4 {
+      lipsCache[path] = (outerLips, toSource(face.landmarks?.innerLips))
+    }
 
     // Chin = lowest point of the face contour.
     if let contour = face.landmarks?.faceContour, contour.pointCount > 0 {
@@ -371,6 +386,12 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       let smooth = Float(bz["smooth"] ?? 0), bright = Float(bz["brighten"] ?? 0)
       let even = Float(bz["even"] ?? 0), shine = Float(bz["shine"] ?? 0)
       let sharp = Float(bz["sharpen"] ?? 0)
+      let lipsAmount = Float(bz["lips"] ?? 0)
+      if lipsAmount > 0.001, let lips = lipsCache[path] {
+        tintLips(&r, &g, &b, W: W, H: H, amount: lipsAmount,
+                 outer: lips.outer.map { CGPoint(x: (Double($0.x) - left) * sx, y: (Double($0.y) - top) * sy) },
+                 inner: lips.inner.map { CGPoint(x: (Double($0.x) - left) * sx, y: (Double($0.y) - top) * sy) })
+      }
       if smooth + bright + even + shine + sharp > 0.001 {
         applyBeauty(&r, &g, &b, alpha: alpha, W: W, H: H,
                     face: CGRect(x: (f["left"]! - left) * sx, y: (f["top"]! - top) * sy,
@@ -466,6 +487,56 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       throw fail(3, "scale failed")
     }
     return image
+  }
+
+  /// A natural rose tint on the lips, keeping their own light and texture.
+  private func tintLips(_ r: inout [Float], _ g: inout [Float], _ b: inout [Float],
+                        W: Int, H: Int, amount: Float, outer: [CGPoint], inner: [CGPoint]) {
+    let xs = outer.map { $0.x }, ys = outer.map { $0.y }
+    let pad: CGFloat = 6
+    let x0 = max(0, Int((xs.min() ?? 0) - pad)), x1 = min(W - 1, Int((xs.max() ?? 0) + pad))
+    let y0 = max(0, Int((ys.min() ?? 0) - pad)), y1 = min(H - 1, Int((ys.max() ?? 0) + pad))
+    guard x1 > x0 + 2, y1 > y0 + 2 else { return }
+    let w = x1 - x0 + 1, h = y1 - y0 + 1
+
+    // Rasterise the lip shape (outer minus open mouth), then feather it.
+    var mask = [UInt8](repeating: 0, count: w * h)
+    let gray = CGColorSpaceCreateDeviceGray()
+    mask.withUnsafeMutableBytes { buf in
+      guard let ctx = CGContext(data: buf.baseAddress, width: w, height: h, bitsPerComponent: 8,
+                                bytesPerRow: w, space: gray, bitmapInfo: CGImageAlphaInfo.none.rawValue) else { return }
+      // CGContext has its origin at the bottom left; flip so rows run top down.
+      ctx.translateBy(x: 0, y: CGFloat(h))
+      ctx.scaleBy(x: 1, y: -1)
+      func shape(_ pts: [CGPoint]) -> CGPath {
+        let p = CGMutablePath()
+        p.addLines(between: pts.map { CGPoint(x: $0.x - CGFloat(x0), y: $0.y - CGFloat(y0)) })
+        p.closeSubpath()
+        return p
+      }
+      ctx.setFillColor(gray: 1, alpha: 1)
+      ctx.addPath(shape(outer))
+      ctx.fillPath()
+      if inner.count > 4 {
+        ctx.setFillColor(gray: 0, alpha: 1)
+        ctx.addPath(shape(inner))
+        ctx.fillPath()
+      }
+    }
+    var m = mask.map { Float($0) / 255 }
+    boxBlur(&m, w, h, max(2, w / 40))
+
+    // Target colour: a soft rose, applied as colour only (light kept).
+    let tr = powf(0.78, 2.2), tg = powf(0.36, 2.2), tb = powf(0.42, 2.2)
+    let tl = 0.2126 * tr + 0.7152 * tg + 0.0722 * tb
+    for y in 0..<h { for x in 0..<w {
+      let k = 0.55 * amount * m[y * w + x]
+      if k < 0.002 { continue }
+      let i = (y + y0) * W + x + x0
+      let l = 0.2126 * r[i] + 0.7152 * g[i] + 0.0722 * b[i]
+      let s = l / tl
+      r[i] += k * (tr * s - r[i]); g[i] += k * (tg * s - g[i]); b[i] += k * (tb * s - b[i])
+    } }
   }
 
   /// Skin smoothing, brightening, even tone, less shine and a little

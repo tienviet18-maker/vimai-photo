@@ -201,5 +201,6 @@
   "beautyOff": "Mati",
   "beautyStrictWarning": "Paspor dan SIM bisa menolak foto yang diretus. Gunakan tipis atau matikan.",
   "beautyStrictAccept": "Tetap gunakan",
-  "beautyLightBadge": "Hanya perawatan kulit ringan (cahaya, warna, kilap). Bentuk wajah tetap."
+  "beautyLightBadge": "Hanya perawatan kulit ringan (cahaya, warna, kilap). Bentuk wajah tetap.",
+  "beautyLips": "Warna bibir"
 }

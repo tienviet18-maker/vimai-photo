@@ -10,12 +10,13 @@ void main() {
     expect(std.isNone, isFalse);
     expect(cv.smooth, greaterThan(std.smooth));
     expect(cv.brighten, greaterThan(std.brighten));
+    expect(std.lips, 0, reason: 'lip colour only by choice on official documents');
   });
 
   test('values stay within 0…1 and round-trip to the native map', () {
     for (final level in EditLevel.values) {
       final m = defaultBeautyFor(level).toMap();
-      expect(m.keys, containsAll(['smooth', 'brighten', 'even', 'shine', 'sharpen']));
+      expect(m.keys, containsAll(['smooth', 'brighten', 'even', 'shine', 'sharpen', 'lips']));
       for (final v in m.values) {
         expect(v, inInclusiveRange(0, 1));
       }

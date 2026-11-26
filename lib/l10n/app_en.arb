@@ -458,5 +458,6 @@
   "beautyOff": "Off",
   "beautyStrictWarning": "Passport and licence offices may refuse retouched photos. Keep it light, or leave it off.",
   "beautyStrictAccept": "Use beauty anyway",
-  "beautyLightBadge": "Light skin care only (light, tone, shine). Face shape unchanged."
+  "beautyLightBadge": "Light skin care only (light, tone, shine). Face shape unchanged.",
+  "beautyLips": "Lip colour"
 }

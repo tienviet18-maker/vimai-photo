@@ -441,6 +441,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             slider(l.beautyEven, _beauty.even, (v) => _beauty.copyWith(even: v)),
             slider(l.beautyShine, _beauty.shine, (v) => _beauty.copyWith(shine: v)),
             slider(l.beautySharpen, _beauty.sharpen, (v) => _beauty.copyWith(sharpen: v)),
+            slider(l.beautyLips, _beauty.lips, (v) => _beauty.copyWith(lips: v)),
             Row(
               children: [
                 Expanded(

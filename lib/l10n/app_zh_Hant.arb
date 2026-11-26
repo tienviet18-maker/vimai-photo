@@ -201,5 +201,6 @@
   "beautyOff": "關閉",
   "beautyStrictWarning": "護照和駕照可能不接受修過的照片。請輕度使用或關閉。",
   "beautyStrictAccept": "仍然使用美顏",
-  "beautyLightBadge": "僅輕度美膚（亮度、膚色、油光），不改變臉型。"
+  "beautyLightBadge": "僅輕度美膚（亮度、膚色、油光），不改變臉型。",
+  "beautyLips": "唇色"
 }
