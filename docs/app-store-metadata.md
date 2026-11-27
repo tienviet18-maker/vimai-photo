@@ -1,0 +1,210 @@
+# App Store metadata (names approved 2026-11-16, 9 locales planned 2026-11-26)
+
+Paste into App Store Connect → App Information / version page. Limits: name 30,
+subtitle 30, keywords 100, promotional text 170 characters. All values below fit
+(checked by character count).
+
+## Search strategy
+
+The Japan storefront indexes only two localizations: **Japanese** (primary)
+and **English (U.S.)** (secondary). Foreigners in Japan search the Japan
+store, so whatever they type in Vietnamese, Chinese, Korean or Portuguese
+only finds the app if those words are in the ja or en-US name, subtitle or
+keyword field. That is why the en-US keyword field carries ảnh thẻ, 证件照,
+證件照, 증명사진 and foto 3x4.
+
+The other seven localizations do two things: the product page shows in the
+reader's device language (better conversion), and the app ranks in home
+storefronts (Vietnam, Korea, Taiwan, Indonesia, Brazil, Thailand) where
+people prepare papers before coming to Japan (COE application photos).
+
+App Store locales: ja, en-US, vi, zh-Hans, zh-Hant, ko, id, pt-BR, th.
+Nepali, Filipino, Burmese and Sinhala are not among Apple's 50 App Store
+metadata languages, so their speakers see the English product page; the app
+itself (UI, home-screen name, permission prompts) does speak all 13:
+vi, en, ja, zh-Hans, zh-Hant, ko, fil, ne, pt-BR, id, my, th, si. The voice
+guide uses iPhone voices; fil, ne, my and si have none, so it speaks English
+there while the screen stays in the user's language.
+
+Rules: keywords never repeat words already in the name or subtitle (they are
+indexed anyway), never name other apps, comma separated, no spaces after
+commas.
+
+Ratings: the app asks for an App Store rating with Apple's own sheet right
+after a photo is saved (1st, 3rd and 8th save, at most once per 60 days; iOS
+shows it at most three times a year). No custom "rate us 5 stars" screen and
+no reward for ratings: App Review rejects both.
+
+Do not distribute in China mainland (needs an ICP filing); Chinese
+(Simplified) still serves Chinese residents of Japan whose phones use it.
+
+Home-screen name (CFBundleDisplayName, `ios/Runner/*.lproj/InfoPlist.strings`):
+ja 証明写真 · en ID Photo · vi Ảnh Thẻ.
+
+## Shared
+
+| Field | Value |
+|---|---|
+| Primary category | Photo & Video |
+| Secondary category | Utilities |
+| Price | Free download, one-time in-app unlock ¥300 (non-consumable) |
+| Age rating | 4+ |
+| Privacy policy URL | https://vimai.jp/products/vimai-photo/privacy |
+| Marketing URL | https://vimai.jp/products/vimai-photo |
+| Support URL | https://vimai.jp/products/vimai-photo |
+| App Privacy | Data Not Collected (photos are processed on the device; no analytics, no account) |
+| Copyright | 2026 ViMai |
+
+Review notes (all locales): "All photo processing (Apple Vision segmentation
+and face landmarks, Google ML Kit face detection running on the device) happens
+on the iPhone. Nothing is uploaded. No login. The app does not retouch faces
+for official documents; only the background and light are corrected."
+
+## Japanese (ja)
+
+- **Name:** 証明写真 ViMai - 在留カード・履歴書
+- **Subtitle:** パスポート・マイナンバーもコンビニ印刷
+- **Keywords:** 運転免許,ビザ,在留資格,更新,変更,就活,申請,プリント,L判,背景,白背景,自宅,スマホ,外国人,永住,帰化,留学,证件照
+- **Promotional text:** 在留カード・履歴書・パスポートの証明写真を自宅で。背景を無地にしてサイズを実測、コンビニでL判に印刷できます。買い切り300円・登録不要。
+- **Description:**
+
+```
+ViMaiの証明写真アプリは、日本の書類の規格に合う証明写真をiPhoneで撮れるアプリです。撮影と仕上がりの確認は無料、保存と印刷は買い切り300円で無制限に使えます。
+
+■ 書類ごとの規格
+在留カード（在留申請）、履歴書、マイナンバーカード、パスポート、運転免許証。写真サイズ・顔の大きさ・背景を書類ごとに設定済みです。
+
+■ 撮影をガイド
+規格どおりの撮影枠と6つのチェック、ベトナム語・英語・日本語の音声ガイド。条件がそろうと自動で撮影します。
+
+■ 仕上げは自動
+背景を白・薄い青の無地に置き換え、髪の輪郭は自然なまま。明るさと色を整え、mm単位で正しいサイズに切り抜きます。仕上がりの顔の大きさ（mm）・左右の明るさ・背景の均一さを実測してチェックします。
+
+■ 顔は修整しません
+目の拡大・美白・ほくろ消しなどは行いません。パスポートなどの公的書類は補正を最小限にしています。
+
+■ 保存と印刷
+L判・2L判の印刷シート（300 dpi、カットガイド付き）をコンビニのマルチコピー機で印刷。オンライン申請用のデータ写真も保存できます。「マイ写真」から再印刷や別の書類用の作り直しができ、期限が近づくとお知らせします。
+
+■ プライバシー
+写真はすべてiPhone内で処理し、サーバーには送りません。アカウント不要。
+
+※ 写真を受け付けるかどうかは提出先が判断します。本アプリは行政機関とは関係ありません。
+```
+
+## English (en-US)
+
+- **Name:** ID Photo Japan: Visa & Resume
+- **Subtitle:** Passport photo & konbini print
+- **Keywords:** ảnh thẻ,anh the,证件照,證件照,증명사진,rirekisho,residence card,zairyu,my number,id card,cv,foto 3x4
+- **Promotional text:** ID photos at home for the residence card, rirekisho and passport: plain background, measured in mm, printed on an L sheet at any konbini. One-time ¥300, no account.
+- **Description:**
+
+```
+ViMai ID Photo takes ID photos that meet Japanese document rules, on your iPhone. Shooting and checking are free; saving and printing unlock once for ¥300, for good.
+
+DOCUMENTS
+Residence card (visa applications), rirekisho CV, My Number card, passport, driving licence. Photo size, head size and background are set for each one.
+
+GUIDED CAPTURE
+A frame drawn to scale, six live checks and a voice guide in Vietnamese, English and Japanese. The app shoots by itself when everything is right.
+
+AUTOMATIC FINISH
+The background becomes plain white or light blue with natural hair edges. Light and colour are balanced and the photo is cut to the exact millimetre. Head size in mm, light on both sides of the face and background evenness are measured on the finished photo.
+
+NO FACE RETOUCHING
+No bigger eyes, whitening or removed moles. Official documents get only the minimum correction.
+
+SAVE AND PRINT
+L and 2L print sheets at 300 dpi with cutting guides, for the multi-function copiers at convenience stores, plus a digital photo for online applications. My photos keeps every photo for reprints or for another document, and reminds you before a photo gets too old.
+
+PRIVACY
+Everything is processed on your iPhone. Nothing is uploaded. No account.
+
+The receiving office decides whether to accept a photo. This app is not affiliated with any government office.
+```
+
+## Vietnamese (vi)
+
+- **Name:** Ảnh Thẻ Chuẩn Nhật - ViMai
+- **Subtitle:** Thẻ cư trú, CV, in ở konbini
+- **Keywords:** hộ chiếu,visa,xin việc,in ảnh,Nhật Bản,my number,bằng lái,nền trắng,người Việt,gia hạn,zairyu
+- **Promotional text:** Chụp ảnh thẻ ở nhà đúng chuẩn thẻ cư trú, CV 履歴書, hộ chiếu: nền trơn, đo cỡ bằng mm, in tờ cỡ L ở konbini. Mua một lần ¥300, không cần tài khoản.
+- **Description:**
+
+```
+ViMai Ảnh Thẻ giúp bạn chụp ảnh thẻ đúng quy định giấy tờ Nhật ngay trên iPhone. Chụp và xem kết quả miễn phí; lưu và in mở khoá một lần ¥300, dùng mãi mãi.
+
+GIẤY TỜ
+Thẻ cư trú (gia hạn, đổi visa), CV 履歴書, thẻ My Number, hộ chiếu, bằng lái. Cỡ ảnh, cỡ đầu và màu nền đã cài sẵn cho từng loại.
+
+HƯỚNG DẪN KHI CHỤP
+Khung chụp đúng tỉ lệ, 6 đèn kiểm tra, giọng nói tiếng Việt, Anh, Nhật. App tự chụp khi đủ điều kiện.
+
+TỰ HOÀN THIỆN
+Thay nền trắng hoặc xanh nhạt, giữ viền tóc tự nhiên. Cân sáng, cân màu, cắt đúng từng mm. Đo lại cỡ đầu (mm), độ sáng hai bên mặt và độ trơn của nền trên ảnh đã xuất.
+
+KHÔNG CHỈNH KHUÔN MẶT
+Không phóng mắt, làm trắng da hay xoá nốt ruồi. Giấy tờ nhà nước chỉ được chỉnh ở mức tối thiểu.
+
+LƯU VÀ IN
+Tờ in cỡ L, 2L (300 dpi, có viền cắt) để in ở máy đa năng của konbini, và ảnh số để nộp hồ sơ online. Mục Ảnh của tôi giữ lại mọi ảnh để in lại hoặc làm lại cho giấy tờ khác, và nhắc bạn khi ảnh sắp quá hạn.
+
+RIÊNG TƯ
+Ảnh xử lý ngay trên iPhone, không gửi lên máy chủ. Không cần tài khoản.
+
+Việc chấp nhận ảnh do nơi nhận hồ sơ quyết định. App không thuộc cơ quan nhà nước nào.
+```
+
+## Chinese (Simplified, zh-Hans)
+
+- **Name:** 证件照 日本 - 在留卡·签证·简历
+- **Subtitle:** 护照照片 便利店打印 尺寸精确
+- **Keywords:** 证件照片,一寸照,二寸照,签证照,护照照,简历照片,便利店,打印,白底,蓝底,换背景,自拍,免冠照,ViMai
+- **Promotional text:** 在家拍日本在留卡、简历、护照证件照：自动换白底，按毫米测量尺寸，生成L尺寸照片纸，在便利店打印。支持中文界面。
+
+## Chinese (Traditional, zh-Hant)
+
+- **Name:** 證件照 日本 - 在留卡·簽證·履歷
+- **Subtitle:** 護照照片 超商列印 尺寸精準
+- **Keywords:** 大頭照,證件照片,二吋照,簽證照,護照照片,履歷照,超商,列印,白底,換背景,自拍,ViMai
+- **Promotional text:** 在家拍日本在留卡、履歷、護照證件照：自動換白底，以毫米測量尺寸，產生L尺寸相紙，到超商列印。支援繁體中文介面。
+
+## Korean (ko)
+
+- **Name:** 증명사진 일본 - 재류카드·비자·이력서
+- **Subtitle:** 여권사진 편의점 인화 정확한 사이즈
+- **Keywords:** 증사,반명함,여권,비자사진,이력서사진,인화,배경,흰배경,셀프,ViMai
+- **Promotional text:** 일본 재류카드·이력서·여권용 증명사진을 집에서. 배경을 흰색으로 바꾸고 mm 단위로 크기를 재서 편의점에서 L판으로 인화하세요. 한국어 지원.
+
+## Indonesian (id)
+
+- **Name:** Pas Foto Jepang: Visa & CV
+- **Subtitle:** Kartu residen, cetak konbini
+- **Keywords:** pasfoto,foto paspor,foto visa,zairyu,izin tinggal,lamaran kerja,latar putih,cetak foto,ViMai
+- **Promotional text:** Pas foto zairyu, CV dan paspor Jepang dari rumah: latar polos, ukuran dalam mm, cetak lembar L di konbini. Aplikasi berbahasa Indonesia.
+
+## Portuguese (Brazil, pt-BR)
+
+- **Name:** Foto 3x4 Japão: Visto e CV
+- **Subtitle:** Zairyu, imprima no konbini
+- **Keywords:** foto documento,foto passaporte,foto visto,residence card,rirekisho,currículo,fundo branco,ViMai
+- **Promotional text:** Foto 3x4 em casa para zairyu card, rirekisho e passaporte: fundo liso, tamanho medido em mm, folha L para o konbini. App em português.
+
+## Thai (th)
+
+- **Name:** รูปติดบัตรญี่ปุ่น วีซ่า CV
+- **Subtitle:** รูปพาสปอร์ต พิมพ์ที่คอนบินิ
+- **Keywords:** รูปถ่ายติดบัตร,รูปวีซ่า,พาสปอร์ต,ไซริวการ์ด,บัตรไซริว,สมัครงาน,พื้นหลังขาว,ปริ้นรูป,ViMai
+- **Promotional text:** ถ่ายรูปติดบัตรสำหรับไซริวการ์ด เรซูเม่ และพาสปอร์ตในญี่ปุ่นได้ที่บ้าน พื้นหลังเรียบ วัดขนาดเป็นมม. พิมพ์แผ่น L ที่คอนบินิ รองรับภาษาไทย
+
+Descriptions for these six locales: translate the English description. Have a native speaker read zh, ko,
+id, pt-BR and th before submitting.
+
+## Screenshots
+
+6.9" (1320×2868) and 6.5" (1284×2778) per locale, in this order: Home, Capture
+guide, Review with measured checks, Before/after, Print sheet, Done (konbini
+steps). The FB set in `vimai-ecosystem/public/products/vimai-photo/` is the
+reference; App Store screenshots must come from the real build, without the
+vimai.jp watermark.

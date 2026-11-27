@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "ID Photo";
+"NSCameraUsageDescription" = "ViMai Photo uses the camera to take your ID photo. Photos are processed on your iPhone and are not uploaded.";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo saves your finished ID photo or print sheet to Photos so you can print it at a convenience store.";

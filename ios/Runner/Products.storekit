@@ -1,0 +1,47 @@
+{
+  "identifier" : "6C4B2D1E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "300",
+      "familyShareable" : false,
+      "internalID" : "6756300001",
+      "localizations" : [
+        {
+          "description" : "Unlimited saving and printing, beauty tools and My photos. One-time purchase.",
+          "displayName" : "ViMai Photo Unlock",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "保存・印刷が無制限、美肌、マイ写真。買い切りです。",
+          "displayName" : "ViMai Photo 買い切り",
+          "locale" : "ja"
+        },
+        {
+          "description" : "Lưu và in không giới hạn, làm đẹp, Ảnh của tôi. Mua một lần.",
+          "displayName" : "Mở khoá ViMai Photo",
+          "locale" : "vi"
+        }
+      ],
+      "productID" : "com.vimai.photo.unlock",
+      "referenceName" : "ViMai Photo Unlock",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_locale" : "ja",
+    "_storefront" : "JPN",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
