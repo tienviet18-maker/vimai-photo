@@ -24,8 +24,8 @@ class VimaiPhotoApp extends StatelessWidget {
       builder: (context, _) => MaterialApp(
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         debugShowCheckedModeBanner: false,
-        theme: buildTheme(Brightness.light),
-        darkTheme: buildTheme(Brightness.dark),
+        theme: buildTheme(),
+        themeMode: ThemeMode.light,
         locale: localeController.locale,
         supportedLocales: LocaleController.supported,
         localizationsDelegates: const [

@@ -13,7 +13,7 @@ import '../../core/spec_l10n.dart';
 import '../../core/specs/photo_spec.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
-import 'best_shot_screen.dart';
+import '../review/review_screen.dart';
 import 'face_analyzer.dart';
 
 /// Step 2 of 3: live checks, then an automatic burst once every light has
@@ -172,10 +172,11 @@ class _CaptureScreenState extends State<CaptureScreen>
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => BestShotScreen(
+          builder: (_) => ReviewScreen(
             spec: widget.spec,
-            photoPath: shots[best].path,
-            shotCount: shots.length,
+            shots: [for (final s in shots) s.path],
+            metrics: metrics,
+            best: best,
           ),
         ),
       );

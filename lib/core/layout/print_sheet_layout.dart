@@ -7,6 +7,7 @@ class SheetSize {
   const SheetSize(this.widthMm, this.heightMm);
 
   static const lSize = SheetSize(89, 127);
+  static const twoL = SheetSize(127, 178);
 
   final double widthMm;
   final double heightMm;
