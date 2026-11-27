@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "증명사진";
+"NSCameraUsageDescription" = "ViMai Photo는 증명사진 촬영에 카메라를 사용합니다. 사진은 iPhone에서 처리되며 업로드되지 않습니다.";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo는 편의점에서 인화할 수 있도록 증명사진이나 인화 용지를 사진에 저장합니다.";

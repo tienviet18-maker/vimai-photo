@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "Ảnh Thẻ";
+"NSCameraUsageDescription" = "ViMai Photo dùng camera để chụp ảnh thẻ. Ảnh được xử lý ngay trên iPhone, không gửi đi đâu.";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo lưu ảnh thẻ hoặc tờ in vào Ảnh để bạn in ở konbini.";

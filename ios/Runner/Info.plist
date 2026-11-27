@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>ViMai Photo</string>
+	<string>ID Photo</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -19,6 +19,16 @@
 		<string>vi</string>
 		<string>en</string>
 		<string>ja</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+		<string>ko</string>
+		<string>fil</string>
+		<string>ne</string>
+		<string>pt-BR</string>
+		<string>id</string>
+		<string>my</string>
+		<string>th</string>
+		<string>si</string>
 	</array>
 	<key>CFBundleName</key>
 	<string>vimai_photo</string>
@@ -30,6 +40,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>

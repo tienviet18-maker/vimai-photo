@@ -242,5 +242,250 @@
   "detailsLabel": "Requirements",
   "autoMode": "Auto",
   "manualMode": "Manual",
-  "closeLabel": "Close"
+  "closeLabel": "Close",
+  "rcHeadMeasured": "Crown to chin {mm} mm (rule {lo}–{hi})",
+  "@rcHeadMeasured": {
+    "placeholders": {
+      "mm": {
+        "type": "String"
+      },
+      "lo": {
+        "type": "String"
+      },
+      "hi": {
+        "type": "String"
+      }
+    }
+  },
+  "bgStrictWarning": "The office may refuse a photo with an edited background. Shooting against a plain white wall is safest.",
+  "bgStrictAccept": "Replace background anyway",
+  "noFaceEditBadge": "Face not retouched. Only background and light are corrected.",
+  "navHome": "Home",
+  "navPhotos": "My photos",
+  "navPrint": "How to print",
+  "prepareTitle": "Before you shoot",
+  "prepareHeadline": "20 seconds of setup, a much better photo",
+  "prepareSub": "A good shot needs little fixing afterwards.",
+  "tipLightTitle": "Face the window",
+  "tipLightBody": "Let the light fall on your face. Don't stand with the light behind you.",
+  "tipWallTitle": "Stand 0.5–1 m from the wall",
+  "tipWallBody": "So your shadow doesn't fall on the wall behind you.",
+  "tipHairTitle": "Keep hair off your eyes",
+  "tipHairBody": "Move your fringe aside so your eyebrows, and your ears if you can, show.",
+  "tipGlassesTitle": "Glasses can glare",
+  "tipGlassesBody": "Take them off if you can. If you keep them on, tilt them slightly to avoid reflections.",
+  "whoHolds": "Who holds the phone?",
+  "holdOther": "Someone else takes it",
+  "holdOtherSub": "Rear camera, sharper. The app shoots when everything is right.",
+  "holdSelf": "Take it yourself",
+  "holdSelfSub": "Front camera, phone propped at eye level. The app shoots by itself.",
+  "recommended": "Recommended",
+  "procTitle": "Finishing your photo",
+  "procTime": "About 2–3 seconds",
+  "procFace": "Finding the face and the top of the head",
+  "procLight": "Balancing light and colour",
+  "procBackground": "Making the background plain, keeping hair edges",
+  "procBackgroundKeep": "Keeping the original background",
+  "procCrop": "Cutting to exactly {w}×{h} mm",
+  "@procCrop": {
+    "placeholders": {
+      "w": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "procCheck": "Checking against the rules",
+  "procPrivacy": "Processed on this iPhone. Nothing is uploaded.",
+  "beforeLabel": "Before",
+  "afterLabel": "After",
+  "outputQuestion": "What do you need the photo for?",
+  "outL": "Print at a konbini · L sheet",
+  "outLSub": "{count} photos, {w}×{h} px, with cutting guides",
+  "@outLSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "w": {
+        "type": "int"
+      },
+      "h": {
+        "type": "int"
+      }
+    }
+  },
+  "out2L": "Print more · 2L sheet",
+  "out2LSub": "{count} photos, {w}×{h} px",
+  "@out2LSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "w": {
+        "type": "int"
+      },
+      "h": {
+        "type": "int"
+      }
+    }
+  },
+  "outDigital": "Apply online · digital photo",
+  "outDigitalSub": "1 JPEG, {w}×{h} px, exactly {mw}×{mh} mm",
+  "@outDigitalSub": {
+    "placeholders": {
+      "w": {
+        "type": "int"
+      },
+      "h": {
+        "type": "int"
+      },
+      "mw": {
+        "type": "String"
+      },
+      "mh": {
+        "type": "String"
+      }
+    }
+  },
+  "saveToPhotosAction": "Save to Photos",
+  "doneDigitalInfo": "Digital {doc} photo · {w}×{h} px · 300 dpi",
+  "@doneDigitalInfo": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      },
+      "w": {
+        "type": "int"
+      },
+      "h": {
+        "type": "int"
+      }
+    }
+  },
+  "digitalHowTitle": "Applying online",
+  "digitalHowBody": "When the application site asks for a photo, choose this one from Photos. Don't crop or re-compress it.",
+  "printSheetToo": "Also print an L sheet",
+  "validUntil": "Valid until {date}",
+  "@validUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "validMonthsNote": "Photos must be taken within {months} months.",
+  "@validMonthsNote": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "remindMe": "Remind me before it expires",
+  "remindTitle": "Your ID photo expires soon",
+  "remindBody": "Your {doc} photo is valid until {date}. Take a new one in ViMai Photo.",
+  "@remindBody": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "remindDenied": "Turn on notifications for ViMai Photo in iPhone Settings.",
+  "remindSet": "We'll remind you on {date}.",
+  "@remindSet": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "photosSub": "Kept on this iPhone. Reprint or resize any time.",
+  "takenOn": "Taken {date}",
+  "@takenOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "monthsLeft": "{count, plural, =1{1 month left} other{{count} months left}}",
+  "@monthsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lessThanMonth": "Less than a month left",
+  "expiredLabel": "Older than {months} months",
+  "@expiredLabel": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "reprint": "Reprint",
+  "useOtherDoc": "Use for another document",
+  "newPhoto": "Take a new photo",
+  "deleteLabel": "Delete",
+  "deleteConfirm": "Delete this photo from this iPhone?",
+  "cancelLabel": "Cancel",
+  "photosEmpty": "No photos yet. Photos you save appear here.",
+  "photosFooter": "Offices want recent photos, usually taken within 3–6 months. The app reminds you before a photo gets too old.",
+  "seeAll": "See all",
+  "printGuideIntro": "Sheets saved from the app print on the multi-function copiers at convenience stores.",
+  "printTipSize": "Choose the size you saved: L (89×127 mm) or 2L (127×178 mm).",
+  "printTipMeasure": "After printing, measure one photo with a ruler to check the size.",
+  "printTipsTitle": "Tips for the right size",
+  "savedToMyPhotos": "Saved to My photos",
+  "sourceMissing": "The original shot is gone. Please take a new photo.",
+  "chooseDocTitle": "Choose a document",
+  "tabBeauty": "Beauty",
+  "beautySmooth": "Smooth skin",
+  "beautyBrighten": "Brighten skin",
+  "beautyEven": "Even skin tone",
+  "beautyShine": "Less shine",
+  "beautySharpen": "Sharpen",
+  "beautyNote": "Skin only. The shape of your face never changes.",
+  "beautyOff": "Off",
+  "beautyStrictWarning": "Passport and licence offices may refuse retouched photos. Keep it light, or leave it off.",
+  "beautyStrictAccept": "Use beauty anyway",
+  "beautyLightBadge": "Light skin care only (light, tone, shine). Face shape unchanged.",
+  "beautyLips": "Lip colour",
+  "payTitle": "Unlock ViMai Photo for good",
+  "payWhyFree": "Your free photo is used. Unlock once to save and print as many as you need.",
+  "payWhyBeauty": "Beauty is part of the unlock. Unlock once to save this photo with it.",
+  "payBenefitSave": "Save and print unlimited photos, every document",
+  "payBenefitBeauty": "Beauty: smooth skin, brighten, even tone, lips",
+  "payBenefitPhotos": "My photos: reprint, remake for another document, reminders",
+  "payBenefitNoAds": "No ads, no subscription",
+  "payButton": "Unlock for {price}",
+  "payLoadingPrice": "Loading price…",
+  "payOneTime": "One-time purchase. No subscription, no renewal.",
+  "restoreButton": "Restore purchase",
+  "restoreFound": "Purchase restored. Thank you!",
+  "restoreNone": "No earlier purchase found on this Apple Account.",
+  "payThanks": "Unlocked. Thank you!",
+  "payPending": "Waiting for approval (Ask to Buy). It unlocks by itself once approved.",
+  "payNetwork": "No connection to the App Store. Please try again.",
+  "payUnavailable": "The App Store is not available right now. Please try again later.",
+  "payFailed": "The purchase did not go through. You were not charged.",
+  "payBeautyFreeHint": "Or turn Beauty off and save your free photo.",
+  "payUnlockedTitle": "Unlocked for good",
+  "payUnlockedSub": "Thank you for supporting ViMai Photo.",
+  "@payButton": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

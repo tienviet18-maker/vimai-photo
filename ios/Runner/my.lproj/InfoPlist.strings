@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "ID ဓာတ်ပုံ";
+"NSCameraUsageDescription" = "ViMai Photo သည် ID ဓာတ်ပုံရိုက်ရန် ကင်မရာကို သုံးသည်။ ဓာတ်ပုံကို iPhone ပေါ်တွင်သာ လုပ်ဆောင်ပြီး upload မလုပ်ပါ။";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo သည် ကွန်ဘီနီတွင် ပရင့်ထုတ်နိုင်ရန် ID ဓာတ်ပုံ သို့မဟုတ် ပရင့်စာရွက်ကို Photos တွင် သိမ်းသည်။";

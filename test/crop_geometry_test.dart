@@ -6,20 +6,23 @@ import 'package:vimai_photo/core/photo/review_checks.dart';
 import 'package:vimai_photo/core/specs/photo_spec.dart';
 
 PhotoSpec _spec({
+  String id = 'test',
   double h = 40,
   double w = 30,
   double? head,
+  double? tol,
   double? top,
   List<PhotoRule> rules = const [PhotoRule.onlyYou],
 }) =>
     PhotoSpec(
-      id: 'test',
+      id: id,
       names: const {'en': 'Test'},
       jaName: 'テスト',
       icon: 'badge',
       heightMm: h,
       widthMm: w,
       headHeightMm: head,
+      headToleranceMm: tol,
       topMarginMm: top,
       backgrounds: const [PhotoBackground.white],
       validityMonths: 6,
@@ -89,6 +92,42 @@ void main() {
       expect(cropFor(noMask, _spec()), isNotNull);
     });
 
+    test('nudges the crop inside the photo when the face is near a side', () {
+      // Face centre at 700: the plain crop (about 1477 wide) would start
+      // about 39 px left of the photo.
+      const nearLeft = PhotoAnalysis(
+        width: 3000,
+        height: 4000,
+        faceCount: 1,
+        hasMask: true,
+        faceLeft: 300,
+        faceTop: 1400,
+        faceWidth: 800,
+        faceHeight: 1000,
+        crownY: 1100,
+      );
+      final c = cropFor(nearLeft, _spec())!;
+      expect(c.left, 0);
+      // The nudge is small, so the face stays near the middle.
+      expect((c.left + c.width / 2 - 700).abs(), lessThanOrEqualTo(c.width * maxSideNudge));
+    });
+
+    test('leaves a crop that would need a big nudge where it is', () {
+      const atEdge = PhotoAnalysis(
+        width: 3000,
+        height: 4000,
+        faceCount: 1,
+        hasMask: true,
+        faceLeft: -300,
+        faceTop: 1400,
+        faceWidth: 800,
+        faceHeight: 1000,
+        crownY: 1100,
+      );
+      final c = cropFor(atEdge, _spec())!;
+      expect(c.left + c.width / 2, closeTo(100, 1e-9));
+    });
+
     test('returns null without a face', () {
       const none = PhotoAnalysis(width: 10, height: 10, faceCount: 0, hasMask: false);
       expect(cropFor(none, _spec()), isNull);
@@ -149,6 +188,69 @@ void main() {
     test('noEdit documents forbid edits', () {
       expect(forbidsEdits(_spec(rules: const [PhotoRule.noEdit])), isTrue);
       expect(forbidsEdits(_spec()), isFalse);
+    });
+  });
+
+  group('measured checks', () {
+    final residence = _spec(head: 25, tol: 3);
+
+    test('head range comes from the spec, or the default tolerance', () {
+      expect(headRangeMm(residence), (22.0, 28.0));
+      final (lo, hi) = headRangeMm(_spec());
+      expect(hi - lo, closeTo(2 * defaultHeadToleranceMm, 1e-9));
+      expect((lo + hi) / 2, closeTo(defaultHeadRatio * 40, 1e-9));
+    });
+
+    test('the chin comes from landmarks when present', () {
+      const withChin = PhotoAnalysis(
+        width: 3000,
+        height: 4000,
+        faceCount: 1,
+        hasMask: true,
+        faceLeft: 1100,
+        faceTop: 1400,
+        faceWidth: 800,
+        faceHeight: 1000,
+        crownY: 1100,
+        chinY: 2450,
+      );
+      expect(chinOf(withChin), 2450);
+      expect(chinOf(_a), 2400);
+    });
+
+    RenderResult r({double head = 25, double balance = 0.95, double spread = 3}) => RenderResult(
+          path: 'x.jpg',
+          headMm: head,
+          faceLuma: 160,
+          faceBalance: balance,
+          backgroundSpread: spread,
+          backgroundReplaced: true,
+        );
+
+    test('a measured head outside the range fails', () {
+      expect(reviewPhoto(_a, residence, render: r(), replaceBackground: true).allPassed, isTrue);
+      expect(
+        reviewPhoto(_a, residence, render: r(head: 30), replaceBackground: true).failed,
+        [ReviewCheck.head],
+      );
+    });
+
+    test('a one-sided shadow and a busy background fail', () {
+      expect(
+        reviewPhoto(_a, residence, render: r(balance: 0.6), replaceBackground: true).failed,
+        [ReviewCheck.light],
+      );
+      expect(
+        reviewPhoto(_a, residence, render: r(spread: 20), replaceBackground: true).failed,
+        [ReviewCheck.background],
+      );
+    });
+
+    test('edit level follows the document', () {
+      expect(editLevelFor(_spec(rules: const [PhotoRule.noEdit])), EditLevel.strict);
+      expect(editLevelFor(_spec(id: 'jp_resume')), EditLevel.cv);
+      expect(editLevelFor(residence), EditLevel.standard);
+      expect(isOfficialDocument(_spec(id: 'jp_resume')), isFalse);
     });
   });
 }

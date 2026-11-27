@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "ID फोटो";
+"NSCameraUsageDescription" = "ViMai Photo ले ID फोटो खिच्न क्यामेरा प्रयोग गर्छ। फोटो iPhone मै प्रोसेस हुन्छ, अपलोड हुँदैन।";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo ले कोन्बिनीमा प्रिन्ट गर्न ID फोटो वा प्रिन्ट पाना Photos मा सेभ गर्छ।";

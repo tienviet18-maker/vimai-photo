@@ -11,6 +11,7 @@ class PhotoAnalysis {
     this.faceWidth,
     this.faceHeight,
     this.crownY,
+    this.chinY,
     this.yaw,
     this.roll,
     this.pitch,
@@ -30,6 +31,7 @@ class PhotoAnalysis {
       faceWidth: d(face?['width']),
       faceHeight: d(face?['height']),
       crownY: d(m['crownY']),
+      chinY: d(m['chinY']),
       yaw: d(m['yaw']),
       roll: d(m['roll']),
       pitch: d(m['pitch']),
@@ -51,6 +53,9 @@ class PhotoAnalysis {
 
   /// Top of the hair, from the person mask. Null without a mask.
   final double? crownY;
+
+  /// Lowest point of the face contour (the chin), from face landmarks.
+  final double? chinY;
 
   /// Head angles in degrees.
   final double? yaw;
