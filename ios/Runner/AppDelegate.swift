@@ -310,7 +310,20 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     var pixels = [UInt8](repeating: 0, count: rows * 4)
     context.render(column, toBitmap: &pixels, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: rows),
                    format: .RGBA8, colorSpace: nil)
-    let covered = stride(from: 0, to: rows, by: 1).filter { pixels[$0 * 4] > 128 }.count
+    // Count the solid run that starts at the face. Loose mask bits higher up
+    // (a lamp, a shelf, the soft halo of the mask) must not raise the crown,
+    // or the head comes out smaller than the spec. The run starts at
+    // whichever end of the column is covered, so the bitmap row order does
+    // not matter; with both or neither end covered, fall back to the count.
+    let solid = (0..<rows).map { pixels[$0 * 4] > 160 }
+    let covered: Int
+    if solid.first == true && solid.last != true {
+      covered = solid.firstIndex(of: false) ?? rows
+    } else if solid.last == true && solid.first != true {
+      covered = rows - 1 - (solid.lastIndex(of: false) ?? -1)
+    } else {
+      covered = solid.filter { $0 }.count
+    }
     guard covered > 0 else { return nil }
     return faceTop - CGFloat(covered) / CGFloat(rows) * strip.height
   }
@@ -428,9 +441,15 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       let mr = bgSum.0 / Float(bgN), mg = bgSum.1 / Float(bgN), mb = bgSum.2 / Float(bgN)
       let hi = max(mr, mg, mb), lo = min(mr, mg, mb), grey = (mr + mg + mb) / 3
       if hi > 0.05 && (hi - lo) / hi < 0.3 {
-        let gr = min(max(grey / max(mr, 1e-4), 0.88), 1.12)
-        let gg = min(max(grey / max(mg, 1e-4), 0.88), 1.12)
-        let gb = min(max(grey / max(mb, 1e-4), 0.88), 1.12)
+        // Walls are rarely pure grey (a cool LED room or a beige wall), so
+        // correct only part of the cast: a full correction pushed skin red
+        // in front of bluish walls.
+        let strength: Float = 0.6
+        func wb(_ m: Float) -> Float {
+          let full = min(max(grey / max(m, 1e-4), 0.9), 1.1)
+          return 1 + (full - 1) * strength
+        }
+        let gr = wb(mr), gg = wb(mg), gb = wb(mb)
         for i in 0..<N { r[i] *= gr; g[i] *= gg; b[i] *= gb }
       }
     }
@@ -440,6 +459,18 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     let target: Float = powf(0.62, 2.2)
     let gain = min(max(target / max(before.all, 1e-4), 0.75), 1.8) * powf(2, Float(userEV))
     for i in 0..<N { r[i] *= gain; g[i] *= gain; b[i] *= gain }
+    // Roll off highlights instead of clipping one channel: a clipped red
+    // channel turns bright skin orange-red. Scaling all three channels
+    // together keeps the hue.
+    let knee: Float = 0.8
+    for i in 0..<N {
+      let m = max(r[i], g[i], b[i])
+      if m > knee {
+        let soft = knee + (1 - knee) * (1 - expf(-(m - knee) / (1 - knee)))
+        let f = soft / m
+        r[i] *= f; g[i] *= f; b[i] *= f
+      }
+    }
 
     // 3. Soften a shadow on one side of the face (not for strict documents):
     //    a smooth fill light on the darker side, the face itself untouched.

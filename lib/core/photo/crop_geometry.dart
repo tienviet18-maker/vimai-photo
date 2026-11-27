@@ -83,5 +83,23 @@ CropRect? cropFor(
   final cropW = cropH * spec.widthMm / spec.heightMm;
   final top = crown - (topRatioFor(spec) + adjust.shift) * cropH;
   final centerX = a.faceLeft! + a.faceWidth! / 2;
-  return CropRect(centerX - cropW / 2, top, cropW, cropH);
+  return CropRect(_keepInsideX(centerX - cropW / 2, cropW, a.width), top, cropW, cropH);
+}
+
+/// Largest sideways nudge, as a share of the crop width, used to keep the
+/// crop inside the photo. A crop past the left or right edge makes the
+/// renderer repeat the edge pixels, which shows as a streak down the side.
+/// A few percent keeps the face visibly centred.
+const double maxSideNudge = 0.04;
+
+double _keepInsideX(double left, double cropW, double imageW) {
+  if (cropW >= imageW) return left;
+  double nudge = 0;
+  if (left < 0) {
+    nudge = -left;
+  } else if (left + cropW > imageW) {
+    nudge = imageW - (left + cropW);
+  }
+  if (nudge.abs() > cropW * maxSideNudge) return left;
+  return left + nudge;
 }
