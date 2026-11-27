@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "รูปติดบัตร";
+"NSCameraUsageDescription" = "ViMai Photo ใช้กล้องเพื่อถ่ายรูปติดบัตร รูปประมวลผลบน iPhone และไม่ถูกอัปโหลด";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo บันทึกรูปติดบัตรหรือแผ่นพิมพ์ลงในรูปภาพ เพื่อพิมพ์ที่คอนบินิ";

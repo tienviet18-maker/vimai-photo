@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "證件照";
+"NSCameraUsageDescription" = "ViMai Photo 使用相機拍攝證件照。照片在 iPhone 上處理，不會上傳。";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo 將證件照或列印紙儲存到照片，方便在超商列印。";

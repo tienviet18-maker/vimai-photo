@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "Pas Foto";
+"NSCameraUsageDescription" = "ViMai Photo memakai kamera untuk mengambil pas foto. Foto diproses di iPhone dan tidak diunggah.";
+"NSPhotoLibraryAddUsageDescription" = "ViMai Photo menyimpan pas foto atau lembar cetak ke Foto agar bisa dicetak di konbini.";
