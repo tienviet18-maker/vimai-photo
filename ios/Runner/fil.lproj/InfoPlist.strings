@@ -1,0 +1,4 @@
+/* Home screen name and permission prompts. */
+"CFBundleDisplayName" = "ID Photo";
+"NSCameraUsageDescription" = "Ginagamit ng ViMai Photo ang camera para kunan ang ID photo mo. Sa iPhone pinoproseso, walang ina-upload.";
+"NSPhotoLibraryAddUsageDescription" = "Sine-save ng ViMai Photo ang ID photo o print sheet sa Photos para mai-print sa konbini.";

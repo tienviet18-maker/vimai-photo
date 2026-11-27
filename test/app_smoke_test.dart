@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vimai_photo/app.dart';
 import 'package:vimai_photo/core/locale/locale_controller.dart';
 import 'package:vimai_photo/core/specs/spec_repository.dart';
+import 'package:vimai_photo/core/purchase/purchases.dart';
+import 'package:vimai_photo/core/store/photo_store.dart';
 
 /// Serves the real spec file synchronously, so no real I/O has to finish
 /// inside the test's fake-async zone.
@@ -30,6 +32,8 @@ Future<void> _pumpApp(WidgetTester tester, {String? locale}) async {
     VimaiPhotoApp(
       localeController: LocaleController(prefs),
       specRepository: SpecRepository(bundle: _FileBundle()),
+      photoStore: PhotoStore(prefs, directory: () async => Directory.systemTemp.path),
+      purchases: Purchases(prefs),
     ),
   );
   await tester.pumpAndSettle();
@@ -67,5 +71,15 @@ void main() {
     // The capture button sits below the fold on the 800x600 test screen.
     await tester.scrollUntilVisible(find.text('Take photo'), 200);
     expect(find.text('Take photo'), findsOneWidget);
+  });
+
+  testWidgets('bottom bar opens My photos and How to print', (tester) async {
+    await _pumpApp(tester, locale: 'en');
+    await tester.tap(find.text('My photos').last);
+    await tester.pumpAndSettle();
+    expect(find.text('No photos yet. Photos you save appear here.'), findsOneWidget);
+    await tester.tap(find.text('How to print').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Open the store\'s print app'), findsOneWidget);
   });
 }

@@ -4,7 +4,9 @@ import ImageIO
 import Photos
 import PhotosUI
 import UIKit
+import StoreKit
 import UniformTypeIdentifiers
+import UserNotifications
 import Vision
 
 @main
@@ -43,6 +45,9 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
 
   /// Upright image and person mask per source path, so sliders re-render fast.
   private var cache: [String: Source] = [:]
+  /// Lip outlines from `analyze`, in source pixels (origin top left):
+  /// outer edge, and the open mouth inside it to leave teeth alone.
+  private var lipsCache: [String: (outer: [CGPoint], inner: [CGPoint])] = [:]
   private var pickResult: FlutterResult?
   private var pickLimit = 1
 
@@ -51,6 +56,92 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     super.init()
     channel.setMethodCallHandler { [weak self] call, result in
       self?.handle(call, result: result)
+    }
+    listenForTransactions()
+  }
+
+  deinit { transactionUpdates?.cancel() }
+
+  // MARK: in-app purchase (StoreKit 2)
+  //
+  // One non-consumable unlock. Apple signs every transaction and StoreKit
+  // checks that signature on the device (`.verified`), so no server is in
+  // the path: a purchase unlocks even offline, and restoring works on any
+  // iPhone signed in with the same Apple Account.
+
+  static let unlockID = "com.vimai.photo.unlock"
+  private var transactionUpdates: Task<Void, Never>?
+
+  /// Purchases finished outside the app (Ask to Buy, another device,
+  /// a refund) arrive here; each is finished and reported to Flutter.
+  private func listenForTransactions() {
+    transactionUpdates = Task.detached { [weak self] in
+      for await update in Transaction.updates {
+        guard case .verified(let transaction) = update else { continue }
+        await transaction.finish()
+        let unlocked = await PhotoNative.isUnlocked()
+        DispatchQueue.main.async { self?.channel.invokeMethod("iapChanged", arguments: unlocked) }
+      }
+    }
+  }
+
+  static func isUnlocked() async -> Bool {
+    for await entitlement in Transaction.currentEntitlements {
+      if case .verified(let t) = entitlement, t.productID == unlockID, t.revocationDate == nil {
+        return true
+      }
+    }
+    return false
+  }
+
+  private func reply(_ result: @escaping FlutterResult, _ value: Any?) {
+    DispatchQueue.main.async { result(value) }
+  }
+
+  private func storeError(_ code: String, _ error: Error? = nil) -> FlutterError {
+    FlutterError(code: code, message: error?.localizedDescription, details: nil)
+  }
+
+  private func handleStore(_ method: String, result: @escaping FlutterResult) {
+    Task {
+      do {
+        switch method {
+        case "iapProduct":
+          let product = try await Product.products(for: [Self.unlockID]).first
+          reply(result, product.map { ["price": $0.displayPrice, "name": $0.displayName] })
+        case "iapUnlocked":
+          reply(result, await Self.isUnlocked())
+        case "iapRestore":
+          try await AppStore.sync()
+          reply(result, await Self.isUnlocked())
+        case "iapPurchase":
+          guard let product = try await Product.products(for: [Self.unlockID]).first else {
+            return reply(result, storeError("unavailable"))
+          }
+          switch try await product.purchase() {
+          case .success(let verification):
+            guard case .verified(let transaction) = verification else {
+              return reply(result, storeError("unverified"))
+            }
+            await transaction.finish()
+            reply(result, "purchased")
+          case .userCancelled:
+            reply(result, "cancelled")
+          case .pending:
+            reply(result, "pending")
+          @unknown default:
+            reply(result, "cancelled")
+          }
+        default:
+          reply(result, FlutterMethodNotImplemented)
+        }
+      } catch StoreKitError.userCancelled {
+        reply(result, method == "iapPurchase" ? "cancelled" : storeError("cancelled"))
+      } catch StoreKitError.networkError(let e) {
+        reply(result, storeError("network", e))
+      } catch {
+        reply(result, storeError("failed", error))
+      }
     }
   }
 
@@ -69,8 +160,24 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       share(path: args["path"] as! String, result: result)
     case "pickPhoto":
       pickPhoto(limit: args["limit"] as? Int ?? 1, result: result)
+    case "iapProduct", "iapUnlocked", "iapRestore", "iapPurchase":
+      handleStore(call.method, result: result)
+    case "requestReview":
+      DispatchQueue.main.async {
+        let scene = UIApplication.shared.connectedScenes
+          .first { $0.activationState == .foregroundActive } as? UIWindowScene
+        if let scene { SKStoreReviewController.requestReview(in: scene) }
+        result(nil)
+      }
+    case "appDir":
+      result(appDir())
+    case "scheduleReminder":
+      scheduleReminder(args, result: result)
+    case "cancelReminder":
+      UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [args["id"] as! String])
+      result(nil)
     case "clearCache":
-      queue.async { self.cache.removeAll() }
+      queue.async { self.cache.removeAll(); self.lipsCache.removeAll() }
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
@@ -163,6 +270,18 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     if let yaw = face.yaw { out["yaw"] = yaw.doubleValue * 180 / .pi }
     if let pitch = face.pitch { out["pitch"] = pitch.doubleValue * 180 / .pi }
 
+    // Lips, for the optional lip colour.
+    func toSource(_ r: VNFaceLandmarkRegion2D?) -> [CGPoint] {
+      guard let r else { return [] }
+      return r.normalizedPoints.map {
+        CGPoint(x: (box.minX + $0.x * box.width) * w, y: (1 - (box.minY + $0.y * box.height)) * h)
+      }
+    }
+    let outerLips = toSource(face.landmarks?.outerLips)
+    if outerLips.count > 4 {
+      lipsCache[path] = (outerLips, toSource(face.landmarks?.innerLips))
+    }
+
     // Chin = lowest point of the face contour.
     if let contour = face.landmarks?.faceContour, contour.pointCount > 0 {
       let lowest = contour.normalizedPoints.map { $0.y }.min() ?? 0
@@ -191,7 +310,20 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     var pixels = [UInt8](repeating: 0, count: rows * 4)
     context.render(column, toBitmap: &pixels, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: rows),
                    format: .RGBA8, colorSpace: nil)
-    let covered = stride(from: 0, to: rows, by: 1).filter { pixels[$0 * 4] > 128 }.count
+    // Count the solid run that starts at the face. Loose mask bits higher up
+    // (a lamp, a shelf, the soft halo of the mask) must not raise the crown,
+    // or the head comes out smaller than the spec. The run starts at
+    // whichever end of the column is covered, so the bitmap row order does
+    // not matter; with both or neither end covered, fall back to the count.
+    let solid = (0..<rows).map { pixels[$0 * 4] > 160 }
+    let covered: Int
+    if solid.first == true && solid.last != true {
+      covered = solid.firstIndex(of: false) ?? rows
+    } else if solid.last == true && solid.first != true {
+      covered = rows - 1 - (solid.lastIndex(of: false) ?? -1)
+    } else {
+      covered = solid.filter { $0 }.count
+    }
     guard covered > 0 else { return nil }
     return faceTop - CGFloat(covered) / CGFloat(rows) * strip.height
   }
@@ -262,6 +394,11 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       hasMask = true
     }
 
+    // The untouched crop, for the before/after view.
+    let beforePath = (args["before"] as? Bool ?? false)
+      ? try writeJPEG(try downscale(rgba, W, H, outW, outH), dpi: dpi, prefix: "before")
+      : nil
+
     // Linear light, so gains behave like a camera's exposure.
     var lut = [Float](repeating: 0, count: 256)
     for v in 0..<256 { lut[v] = powf(Float(v) / 255, 2.2) }
@@ -304,9 +441,15 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       let mr = bgSum.0 / Float(bgN), mg = bgSum.1 / Float(bgN), mb = bgSum.2 / Float(bgN)
       let hi = max(mr, mg, mb), lo = min(mr, mg, mb), grey = (mr + mg + mb) / 3
       if hi > 0.05 && (hi - lo) / hi < 0.3 {
-        let gr = min(max(grey / max(mr, 1e-4), 0.88), 1.12)
-        let gg = min(max(grey / max(mg, 1e-4), 0.88), 1.12)
-        let gb = min(max(grey / max(mb, 1e-4), 0.88), 1.12)
+        // Walls are rarely pure grey (a cool LED room or a beige wall), so
+        // correct only part of the cast: a full correction pushed skin red
+        // in front of bluish walls.
+        let strength: Float = 0.6
+        func wb(_ m: Float) -> Float {
+          let full = min(max(grey / max(m, 1e-4), 0.9), 1.1)
+          return 1 + (full - 1) * strength
+        }
+        let gr = wb(mr), gg = wb(mg), gb = wb(mb)
         for i in 0..<N { r[i] *= gr; g[i] *= gg; b[i] *= gb }
       }
     }
@@ -316,6 +459,18 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
     let target: Float = powf(0.62, 2.2)
     let gain = min(max(target / max(before.all, 1e-4), 0.75), 1.8) * powf(2, Float(userEV))
     for i in 0..<N { r[i] *= gain; g[i] *= gain; b[i] *= gain }
+    // Roll off highlights instead of clipping one channel: a clipped red
+    // channel turns bright skin orange-red. Scaling all three channels
+    // together keeps the hue.
+    let knee: Float = 0.8
+    for i in 0..<N {
+      let m = max(r[i], g[i], b[i])
+      if m > knee {
+        let soft = knee + (1 - knee) * (1 - expf(-(m - knee) / (1 - knee)))
+        let f = soft / m
+        r[i] *= f; g[i] *= f; b[i] *= f
+      }
+    }
 
     // 3. Soften a shadow on one side of the face (not for strict documents):
     //    a smooth fill light on the darker side, the face itself untouched.
@@ -340,6 +495,27 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
           let gi = 1 + k * min(side * 1.6, 1) * fall * alpha[i]
           r[i] *= gi; g[i] *= gi; b[i] *= gi
         } }
+      }
+    }
+
+    // 3b. Skin care the user chose (all 0 unless they ask, or a CV default).
+    //     Only skin inside the face oval changes: eyes, brows, lips and
+    //     hair keep their detail, and nothing changes the shape of the face.
+    if let bz = args["beauty"] as? [String: Double], let f = face {
+      let smooth = Float(bz["smooth"] ?? 0), bright = Float(bz["brighten"] ?? 0)
+      let even = Float(bz["even"] ?? 0), shine = Float(bz["shine"] ?? 0)
+      let sharp = Float(bz["sharpen"] ?? 0)
+      let lipsAmount = Float(bz["lips"] ?? 0)
+      if lipsAmount > 0.001, let lips = lipsCache[path] {
+        tintLips(&r, &g, &b, W: W, H: H, amount: lipsAmount,
+                 outer: lips.outer.map { CGPoint(x: (Double($0.x) - left) * sx, y: (Double($0.y) - top) * sy) },
+                 inner: lips.inner.map { CGPoint(x: (Double($0.x) - left) * sx, y: (Double($0.y) - top) * sy) })
+      }
+      if smooth + bright + even + shine + sharp > 0.001 {
+        applyBeauty(&r, &g, &b, alpha: alpha, W: W, H: H,
+                    face: CGRect(x: (f["left"]! - left) * sx, y: (f["top"]! - top) * sy,
+                                 width: f["width"]! * sx, height: f["height"]! * sy),
+                    smooth: smooth, bright: bright, even: even, shine: shine, sharp: sharp)
       }
     }
 
@@ -397,20 +573,7 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       out[i * 4 + 1] = UInt8(min(max(powf(max(g[i], 0), 1 / 2.2), 0), 1) * 255 + 0.5)
       out[i * 4 + 2] = UInt8(min(max(powf(max(b[i], 0), 1 / 2.2), 0), 1) * 255 + 0.5)
     }
-    let data = Data(out)
-    guard let provider = CGDataProvider(data: data as CFData),
-          let big = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4,
-                            space: srgb, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
-                            provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent) else {
-      throw fail(3, "image failed")
-    }
-    let small = CIImage(cgImage: big).applyingFilter("CILanczosScaleTransform", parameters: [
-      kCIInputScaleKey: 0.5, kCIInputAspectRatioKey: 1.0,
-    ]).cropped(to: CGRect(x: 0, y: 0, width: outW, height: outH))
-    guard let final = context.createCGImage(small, from: CGRect(x: 0, y: 0, width: outW, height: outH),
-                                            format: .RGBA8, colorSpace: srgb) else {
-      throw fail(3, "scale failed")
-    }
+    let final = try downscale(out, W, H, outW, outH)
 
     var result: [String: Any] = [
       "path": try writeJPEG(final, dpi: dpi, prefix: "photo"),
@@ -419,11 +582,173 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       "backgroundReplaced": replaced,
     ]
     if let s = spread { result["backgroundSpread"] = s }
+    if let b = beforePath { result["beforePath"] = b }
     if let crown = crownSrc, let chin = chinSrc {
       result["headMm"] = (chin - crown) / ch * heightMm
       result["topMarginMm"] = (crown - top) / ch * heightMm
     }
     return result
+  }
+
+  /// 8-bit RGBA at twice the print size, scaled down with Lanczos.
+  private func downscale(_ bytes: [UInt8], _ W: Int, _ H: Int, _ outW: Int, _ outH: Int) throws -> CGImage {
+    guard let provider = CGDataProvider(data: Data(bytes) as CFData),
+          let big = CGImage(width: W, height: H, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: W * 4,
+                            space: srgb, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
+                            provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent) else {
+      throw fail(3, "image failed")
+    }
+    let small = CIImage(cgImage: big).applyingFilter("CILanczosScaleTransform", parameters: [
+      kCIInputScaleKey: Double(outH) / Double(H), kCIInputAspectRatioKey: 1.0,
+    ]).cropped(to: CGRect(x: 0, y: 0, width: outW, height: outH))
+    guard let image = context.createCGImage(small, from: CGRect(x: 0, y: 0, width: outW, height: outH),
+                                            format: .RGBA8, colorSpace: srgb) else {
+      throw fail(3, "scale failed")
+    }
+    return image
+  }
+
+  /// A natural rose tint on the lips, keeping their own light and texture.
+  private func tintLips(_ r: inout [Float], _ g: inout [Float], _ b: inout [Float],
+                        W: Int, H: Int, amount: Float, outer: [CGPoint], inner: [CGPoint]) {
+    let xs = outer.map { $0.x }, ys = outer.map { $0.y }
+    let pad: CGFloat = 6
+    let x0 = max(0, Int((xs.min() ?? 0) - pad)), x1 = min(W - 1, Int((xs.max() ?? 0) + pad))
+    let y0 = max(0, Int((ys.min() ?? 0) - pad)), y1 = min(H - 1, Int((ys.max() ?? 0) + pad))
+    guard x1 > x0 + 2, y1 > y0 + 2 else { return }
+    let w = x1 - x0 + 1, h = y1 - y0 + 1
+
+    // Rasterise the lip shape (outer minus open mouth), then feather it.
+    var mask = [UInt8](repeating: 0, count: w * h)
+    let gray = CGColorSpaceCreateDeviceGray()
+    mask.withUnsafeMutableBytes { buf in
+      guard let ctx = CGContext(data: buf.baseAddress, width: w, height: h, bitsPerComponent: 8,
+                                bytesPerRow: w, space: gray, bitmapInfo: CGImageAlphaInfo.none.rawValue) else { return }
+      // CGContext has its origin at the bottom left; flip so rows run top down.
+      ctx.translateBy(x: 0, y: CGFloat(h))
+      ctx.scaleBy(x: 1, y: -1)
+      func shape(_ pts: [CGPoint]) -> CGPath {
+        let p = CGMutablePath()
+        p.addLines(between: pts.map { CGPoint(x: $0.x - CGFloat(x0), y: $0.y - CGFloat(y0)) })
+        p.closeSubpath()
+        return p
+      }
+      ctx.setFillColor(gray: 1, alpha: 1)
+      ctx.addPath(shape(outer))
+      ctx.fillPath()
+      if inner.count > 4 {
+        ctx.setFillColor(gray: 0, alpha: 1)
+        ctx.addPath(shape(inner))
+        ctx.fillPath()
+      }
+    }
+    var m = mask.map { Float($0) / 255 }
+    boxBlur(&m, w, h, max(2, w / 40))
+
+    // Target colour: a soft rose, applied as colour only (light kept).
+    let tr = powf(0.78, 2.2), tg = powf(0.36, 2.2), tb = powf(0.42, 2.2)
+    let tl = 0.2126 * tr + 0.7152 * tg + 0.0722 * tb
+    for y in 0..<h { for x in 0..<w {
+      let k = 0.55 * amount * m[y * w + x]
+      if k < 0.002 { continue }
+      let i = (y + y0) * W + x + x0
+      let l = 0.2126 * r[i] + 0.7152 * g[i] + 0.0722 * b[i]
+      let s = l / tl
+      r[i] += k * (tr * s - r[i]); g[i] += k * (tg * s - g[i]); b[i] += k * (tb * s - b[i])
+    } }
+  }
+
+  /// Skin smoothing, brightening, even tone, less shine and a little
+  /// sharpening, limited to a soft oval around the face and to skin tones.
+  private func applyBeauty(_ r: inout [Float], _ g: inout [Float], _ b: inout [Float],
+                           alpha: [Float], W: Int, H: Int, face: CGRect,
+                           smooth: Float, bright: Float, even: Float, shine: Float, sharp: Float) {
+    // Oval a little larger than the detected face (forehead, cheeks, jaw).
+    let cx = Float(face.midX), cy = Float(face.midY) - Float(face.height) * 0.02
+    let rx = Float(face.width) * 0.62, ry = Float(face.height) * 0.68
+    let x0 = max(0, Int(cx - rx)), x1 = min(W - 1, Int(cx + rx))
+    let y0 = max(0, Int(cy - ry)), y1 = min(H - 1, Int(cy + ry))
+    guard x1 > x0 + 8, y1 > y0 + 8 else { return }
+    let w = x1 - x0 + 1, h = y1 - y0 + 1, n = w * h
+
+    // Region copies, and a skin weight per pixel (0…1).
+    var cr = [Float](repeating: 0, count: n), cg = cr, cb = cr, skin = cr, oval = cr
+    for y in 0..<h { for x in 0..<w {
+      let i = (y + y0) * W + x + x0, j = y * w + x
+      cr[j] = r[i]; cg[j] = g[i]; cb[j] = b[i]
+      let dx = (Float(x + x0) - cx) / rx, dy = (Float(y + y0) - cy) / ry
+      let o = (1 - smoothstep(0.75, 1, sqrtf(dx * dx + dy * dy))) * alpha[i]
+      oval[j] = o
+      // Skin test in gamma space (YCbCr), soft edges.
+      let sr = powf(min(max(r[i], 0), 1), 1 / 2.2) * 255
+      let sg = powf(min(max(g[i], 0), 1), 1 / 2.2) * 255
+      let sb = powf(min(max(b[i], 0), 1), 1 / 2.2) * 255
+      let cbv = 128 - 0.168736 * sr - 0.331264 * sg + 0.5 * sb
+      let crv = 128 + 0.5 * sr - 0.418688 * sg - 0.081312 * sb
+      let inCb = smoothstep(70, 80, cbv) * (1 - smoothstep(125, 135, cbv))
+      let inCr = smoothstep(128, 136, crv) * (1 - smoothstep(170, 180, crv))
+      skin[j] = o * inCb * inCr
+    } }
+    func lum(_ r: Float, _ g: Float, _ b: Float) -> Float { 0.2126 * r + 0.7152 * g + 0.0722 * b }
+
+    // Even tone: pull colour (not light) toward the wide local average.
+    if even > 0 {
+      var mr = cr, mg = cg, mb = cb
+      let rad = max(Int(face.width) / 10, 4)
+      for _ in 0..<2 { boxBlur(&mr, w, h, rad); boxBlur(&mg, w, h, rad); boxBlur(&mb, w, h, rad) }
+      for j in 0..<n where skin[j] > 0.01 {
+        let l = lum(cr[j], cg[j], cb[j]), lm = max(lum(mr[j], mg[j], mb[j]), 1e-4)
+        let k = 0.45 * even * skin[j], s = l / lm
+        cr[j] += k * (mr[j] * s - cr[j]); cg[j] += k * (mg[j] * s - cg[j]); cb[j] += k * (mb[j] * s - cb[j])
+      }
+    }
+
+    // Smooth: remove fine texture where it is small (pores, blemishes),
+    // keep strong edges (eyes, brows, nostrils, lips).
+    if smooth > 0 {
+      var br = cr, bg = cg, bb = cb
+      let rad = max(Int(face.width) / 55, 2)
+      for _ in 0..<2 { boxBlur(&br, w, h, rad); boxBlur(&bg, w, h, rad); boxBlur(&bb, w, h, rad) }
+      for j in 0..<n where skin[j] > 0.01 {
+        let d = abs(lum(cr[j], cg[j], cb[j]) - lum(br[j], bg[j], bb[j]))
+        let keepEdge = expf(-(d / 0.035) * (d / 0.035))
+        let k = 0.85 * smooth * skin[j] * keepEdge
+        cr[j] += k * (br[j] - cr[j]); cg[j] += k * (bg[j] - cg[j]); cb[j] += k * (bb[j] - cb[j])
+      }
+    }
+
+    // Less shine: soften the brightest skin highlights.
+    if shine > 0 {
+      for j in 0..<n where skin[j] > 0.01 {
+        let l = lum(cr[j], cg[j], cb[j])
+        let k = 1 - 0.35 * shine * skin[j] * smoothstep(0.42, 0.85, l)
+        cr[j] *= k; cg[j] *= k; cb[j] *= k
+      }
+    }
+
+    // Brighter skin, mostly in the shadows so highlights do not clip.
+    if bright > 0 {
+      for j in 0..<n where skin[j] > 0.01 {
+        let l = lum(cr[j], cg[j], cb[j])
+        let k = 1 + 0.4 * bright * skin[j] * (1 - smoothstep(0.35, 0.8, l))
+        cr[j] *= k; cg[j] *= k; cb[j] *= k
+      }
+    }
+
+    // Sharpen eyes, brows and hair edges inside the oval (not skin).
+    if sharp > 0 {
+      var br = cr, bg = cg, bb = cb
+      for _ in 0..<2 { boxBlur(&br, w, h, 2); boxBlur(&bg, w, h, 2); boxBlur(&bb, w, h, 2) }
+      for j in 0..<n where oval[j] > 0.01 {
+        let k = 0.9 * sharp * oval[j] * (1 - 0.7 * skin[j])
+        cr[j] += k * (cr[j] - br[j]); cg[j] += k * (cg[j] - bg[j]); cb[j] += k * (cb[j] - bb[j])
+      }
+    }
+
+    for y in 0..<h { for x in 0..<w {
+      let i = (y + y0) * W + x + x0, j = y * w + x
+      r[i] = cr[j]; g[i] = cg[j]; b[i] = cb[j]
+    } }
   }
 
   private func smoothstep(_ e0: Float, _ e1: Float, _ x: Float) -> Float {
@@ -513,6 +838,42 @@ final class PhotoNative: NSObject, PHPickerViewControllerDelegate {
       throw NSError(domain: "photo", code: 6, userInfo: [NSLocalizedDescriptionKey: "cannot finalize"])
     }
     return url.path
+  }
+
+  // MARK: storage and reminders
+
+  /// Folder for the user's saved photos; kept out of iCloud backups' cache
+  /// purge because Application Support is never cleared by the system.
+  private func appDir() -> String {
+    let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    let dir = base.appendingPathComponent("photos", isDirectory: true)
+    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    return dir.path
+  }
+
+  /// A local notification at `at` (ms since epoch). Asks for permission the
+  /// first time; returns false when the user declines.
+  private func scheduleReminder(_ args: [String: Any], result: @escaping FlutterResult) {
+    let id = args["id"] as! String
+    let at = Date(timeIntervalSince1970: (args["at"] as! Double) / 1000)
+    let content = UNMutableNotificationContent()
+    content.title = args["title"] as? String ?? ""
+    content.body = args["body"] as? String ?? ""
+    content.sound = .default
+    let parts = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: at)
+    let request = UNNotificationRequest(
+      identifier: id, content: content,
+      trigger: UNCalendarNotificationTrigger(dateMatching: parts, repeats: false))
+    let center = UNUserNotificationCenter.current()
+    center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+      guard granted else {
+        DispatchQueue.main.async { result(false) }
+        return
+      }
+      center.add(request) { error in
+        DispatchQueue.main.async { result(error == nil) }
+      }
+    }
   }
 
   // MARK: save, share, pick

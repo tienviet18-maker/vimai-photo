@@ -92,6 +92,42 @@ void main() {
       expect(cropFor(noMask, _spec()), isNotNull);
     });
 
+    test('nudges the crop inside the photo when the face is near a side', () {
+      // Face centre at 700: the plain crop (about 1477 wide) would start
+      // about 39 px left of the photo.
+      const nearLeft = PhotoAnalysis(
+        width: 3000,
+        height: 4000,
+        faceCount: 1,
+        hasMask: true,
+        faceLeft: 300,
+        faceTop: 1400,
+        faceWidth: 800,
+        faceHeight: 1000,
+        crownY: 1100,
+      );
+      final c = cropFor(nearLeft, _spec())!;
+      expect(c.left, 0);
+      // The nudge is small, so the face stays near the middle.
+      expect((c.left + c.width / 2 - 700).abs(), lessThanOrEqualTo(c.width * maxSideNudge));
+    });
+
+    test('leaves a crop that would need a big nudge where it is', () {
+      const atEdge = PhotoAnalysis(
+        width: 3000,
+        height: 4000,
+        faceCount: 1,
+        hasMask: true,
+        faceLeft: -300,
+        faceTop: 1400,
+        faceWidth: 800,
+        faceHeight: 1000,
+        crownY: 1100,
+      );
+      final c = cropFor(atEdge, _spec())!;
+      expect(c.left + c.width / 2, closeTo(100, 1e-9));
+    });
+
     test('returns null without a face', () {
       const none = PhotoAnalysis(width: 10, height: 10, faceCount: 0, hasMask: false);
       expect(cropFor(none, _spec()), isNull);

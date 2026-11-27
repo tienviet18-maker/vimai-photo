@@ -15,13 +15,21 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../review/review_screen.dart';
 import 'face_analyzer.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Step 2 of 3: live checks, then an automatic burst once every light has
 /// stayed green for a moment.
 class CaptureScreen extends StatefulWidget {
-  const CaptureScreen({super.key, required this.spec});
+  const CaptureScreen({
+    super.key,
+    required this.spec,
+    this.initialLens = CameraLensDirection.front,
+  });
 
   final PhotoSpec spec;
+
+  /// Front when the user shoots alone, back when someone else holds it.
+  final CameraLensDirection initialLens;
 
   @override
   State<CaptureScreen> createState() => _CaptureScreenState();
@@ -38,7 +46,7 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   List<CameraDescription> _cameras = const [];
   CameraController? _controller;
-  CameraLensDirection _lens = CameraLensDirection.front;
+  late CameraLensDirection _lens = widget.initialLens;
   CaptureEvaluation? _eval;
   bool _busy = false;
   bool _capturing = false;
@@ -55,8 +63,33 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final lang = Localizations.localeOf(context).languageCode;
-    _tts.setLanguage(switch (lang) { 'vi' => 'vi-VN', 'ja' => 'ja-JP', _ => 'en-US' });
+    _setVoice(langOf(context));
+  }
+
+  /// iPhone voices exist for these; Filipino, Nepali, Burmese and Sinhala
+  /// have none, so the guide speaks English there (the screen stays in the
+  /// user's language).
+  static const _voices = {
+    'vi': 'vi-VN',
+    'ja': 'ja-JP',
+    'en': 'en-US',
+    'zh': 'zh-CN',
+    'zh-Hant': 'zh-TW',
+    'ko': 'ko-KR',
+    'pt': 'pt-BR',
+    'id': 'id-ID',
+    'th': 'th-TH',
+  };
+
+  /// Strings the voice reads; English when the UI language has no voice.
+  AppLocalizations? _spoken;
+
+  Future<void> _setVoice(String lang) async {
+    var voice = _voices[lang];
+    if (voice != null && await _tts.isLanguageAvailable(voice) != true) voice = null;
+    if (!mounted) return;
+    _spoken = voice == null ? lookupAppLocalizations(const Locale('en')) : null;
+    await _tts.setLanguage(voice ?? 'en-US');
   }
 
   @override
@@ -151,7 +184,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (!_voice) return;
     final say = _coach.next(hint, now);
     if (say == null) return;
-    _tts.speak(say.label(AppLocalizations.of(context)));
+    _tts.speak(say.label(_spoken ?? AppLocalizations.of(context)));
   }
 
   Future<void> _burst() async {
@@ -217,7 +250,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text(widget.spec.nameFor(Localizations.localeOf(context).languageCode)),
+        title: Text(widget.spec.nameFor(langOf(context))),
         actions: [
           IconButton(
             tooltip: _voice ? l.voiceOff : l.voiceOn,

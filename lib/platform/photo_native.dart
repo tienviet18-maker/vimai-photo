@@ -42,6 +42,8 @@ class PhotoNative {
     required bool replaceBackground,
     required EditLevel level,
     double exposure = 0,
+    Map<String, double>? beauty,
+    bool before = false,
     int dpi = 300,
   }) async {
     final out = await _call<Map<Object?, Object?>>('render', {
@@ -54,6 +56,8 @@ class PhotoNative {
       'replaceBackground': replaceBackground,
       'level': level.name,
       'exposure': exposure,
+      if (beauty != null) 'beauty': beauty,
+      'before': before,
       'dpi': dpi,
       if (analysis.hasFace)
         'face': {
@@ -107,4 +111,29 @@ class PhotoNative {
   }
 
   Future<void> clearCache() => _call<void>('clearCache');
+
+  /// Apple's own rating sheet. iOS decides whether it actually appears
+  /// (at most three times a year), so this never blocks or promises anything.
+  Future<void> requestReview() => _call<void>('requestReview');
+
+  /// Folder for saved photos (Application Support/photos). Kept by iOS,
+  /// unlike the temporary folder render output goes to.
+  Future<String> appDir() async => (await _call<String>('appDir'))!;
+
+  /// Local notification at [at]. False when the user declines notifications.
+  Future<bool> scheduleReminder({
+    required String id,
+    required DateTime at,
+    required String title,
+    required String body,
+  }) async =>
+      await _call<bool>('scheduleReminder', {
+        'id': id,
+        'at': at.millisecondsSinceEpoch.toDouble(),
+        'title': title,
+        'body': body,
+      }) ??
+      false;
+
+  Future<void> cancelReminder(String id) => _call<void>('cancelReminder', {'id': id});
 }

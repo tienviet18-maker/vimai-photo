@@ -4,13 +4,16 @@ import '../../core/locale/locale_controller.dart';
 import '../../core/spec_l10n.dart';
 import '../../core/specs/photo_spec.dart';
 import '../../core/specs/spec_repository.dart';
+import '../../core/store/photo_store.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../platform/photo_native.dart';
+import '../../widgets/document_picker.dart';
 import '../../widgets/flow_widgets.dart';
-import '../capture/capture_screen.dart';
 import '../capture/face_analyzer.dart';
 import '../review/review_screen.dart';
+import '../photos/photos_screen.dart';
+import '../prepare/prepare_screen.dart';
 import '../settings/settings_screen.dart';
 import '../spec_detail/spec_detail_screen.dart';
 
@@ -21,11 +24,15 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.specRepository,
     required this.localeController,
+    this.onOpenPhotos,
     this.native = const PhotoNative(),
   });
 
   final SpecRepository specRepository;
   final LocaleController localeController;
+
+  /// Switches to the My photos tab.
+  final VoidCallback? onOpenPhotos;
   final PhotoNative native;
 
   @override
@@ -45,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openCapture(PhotoSpec spec) {
     setState(() => _selectedId = spec.id);
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => CaptureScreen(spec: spec)),
+      MaterialPageRoute<void>(builder: (_) => PrepareScreen(spec: spec)),
     );
   }
 
@@ -76,37 +83,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _chooseDocument(List<PhotoSpec> specs) async {
-    final lang = Localizations.localeOf(context).languageCode;
-    final picked = await showModalBottomSheet<PhotoSpec>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            for (final s in specs)
-              ListTile(
-                leading: Icon(specIcon(s.icon)),
-                title: Text(s.nameFor(lang)),
-                subtitle: Text('${s.jaName} · ${formatMm(s.widthMm)}×${formatMm(s.heightMm)} mm'),
-                trailing: s.id == _selected(specs).id
-                    ? const Icon(Icons.check, color: AppColors.primary)
-                    : s.pro
-                        ? const ProTag()
-                        : null,
-                onTap: () => Navigator.of(context).pop(s),
-              ),
-          ],
-        ),
-      ),
-    );
+    final picked = await showDocumentPicker(context, specs, selectedId: _selected(specs).id);
     if (picked != null) setState(() => _selectedId = picked.id);
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -170,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPick: () => _pickPhoto(selected),
                 onChangeDoc: () => _chooseDocument(all),
               ),
+              _RecentPhotos(specs: all, onSeeAll: widget.onOpenPhotos),
               const SizedBox(height: 22),
               Text(
                 l.homeHeadline,
@@ -204,6 +189,57 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+/// The latest saved photos, so reprinting is one tap from home.
+class _RecentPhotos extends StatelessWidget {
+  const _RecentPhotos({required this.specs, this.onSeeAll});
+
+  final List<PhotoSpec> specs;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final store = PhotoStoreScope.maybeOf(context);
+    if (store == null) return const SizedBox.shrink();
+    final actions = SavedPhotoActions(context, specs);
+    final recent = store.items.where((p) => actions.specOf(p) != null).take(2).toList();
+    if (recent.isEmpty) return const SizedBox.shrink();
+    return FutureBuilder<String>(
+      future: store.folder(),
+      builder: (context, snap) {
+        final dir = snap.data;
+        if (dir == null) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(l.navPhotos, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                ),
+                if (onSeeAll != null) TextButton(onPressed: onSeeAll, child: Text(l.seeAll)),
+              ],
+            ),
+            for (final p in recent) ...[
+              SavedPhotoCard(
+                photo: p,
+                spec: actions.specOf(p)!,
+                folder: dir,
+                onReprint: () => actions.reprint(store, p),
+                onOtherDoc: () => actions.otherDocument(store, p),
+                onRetake: () => actions.retake(p),
+                onDelete: () => actions.delete(store, p),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -344,7 +380,6 @@ class _SpecCard extends StatelessWidget {
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                           ),
                         ),
-                        if (spec.pro) ...[const SizedBox(width: 6), const ProTag()],
                       ],
                     ),
                     if (showJa) ...[

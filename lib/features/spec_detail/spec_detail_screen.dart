@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../core/spec_l10n.dart';
 import '../../core/specs/photo_spec.dart';
 import '../../l10n/app_localizations.dart';
-import '../capture/capture_screen.dart';
+import '../prepare/prepare_screen.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Shows what the chosen document needs before the camera opens.
 class SpecDetailScreen extends StatelessWidget {
@@ -14,7 +15,7 @@ class SpecDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -72,7 +73,7 @@ class SpecDetailScreen extends StatelessWidget {
             label: Text(l.startCapture),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => CaptureScreen(spec: spec),
+                builder: (_) => PrepareScreen(spec: spec),
               ),
             ),
           ),

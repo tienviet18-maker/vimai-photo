@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../core/capture/face_metrics.dart';
+import '../../core/photo/beauty.dart';
 import '../../core/photo/crop_geometry.dart';
 import '../../core/photo/photo_analysis.dart';
 import '../../core/photo/review_checks.dart';
@@ -12,7 +13,9 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../platform/photo_native.dart';
 import '../../widgets/flow_widgets.dart';
+import 'processing_view.dart';
 import '../sheet/sheet_screen.dart';
+import '../../core/locale/locale_controller.dart';
 
 /// Step 2 of 3: the photo already cut to the document's exact size, a
 /// checklist against its rules, and the few adjustments that are allowed.
@@ -40,7 +43,7 @@ class ReviewScreen extends StatefulWidget {
   State<ReviewScreen> createState() => _ReviewScreenState();
 }
 
-enum _Tab { background, frame, light }
+enum _Tab { background, frame, light, beauty }
 
 class _ReviewScreenState extends State<ReviewScreen> {
   final _analyses = <String, PhotoAnalysis>{};
@@ -53,23 +56,47 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _showChecks = false;
 
   String? _rendered;
+  String? _beforePath;
+  bool _showBefore = false;
   RenderResult? _render;
   ReviewResult? _result;
 
   /// Strict documents keep their background unless the user accepts the
   /// warning that the office may refuse an edited background.
   bool _strictBackgroundAccepted = false;
+
+  /// Skin care: a default per document, tuned by the user. Strict
+  /// documents start at zero and unlock only after a warning.
+  late BeautySettings _beauty = defaultBeautyFor(editLevelFor(widget.spec));
+  bool _strictBeautyAccepted = false;
   String? _error;
   bool _busy = false;
   int _ticket = 0;
+
+  /// When the big preview scrolls away (while using the sliders), a small
+  /// copy stays pinned in the corner so every change can still be seen.
+  final _scroll = ScrollController();
+  bool _pinPreview = false;
 
   EditLevel get _level => editLevelFor(widget.spec);
   bool get _replaceBackground =>
       _level != EditLevel.strict || _strictBackgroundAccepted;
 
   @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final pin = _scroll.offset > 260;
+    if (pin != _pinPreview) setState(() => _pinPreview = pin);
+  }
+
+  @override
   void initState() {
     super.initState();
+    _scroll.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _process());
   }
 
@@ -107,10 +134,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
         replaceBackground: _replaceBackground,
         level: _level,
         exposure: _exposure,
+        beauty: _beauty.isNone ? null : _beauty.toMap(),
+        before: true,
       );
       if (ticket != _ticket || !mounted) return;
       setState(() {
         _rendered = out.path;
+        _beforePath = out.beforePath;
         _render = out;
         _result = reviewPhoto(
           analysis,
@@ -129,14 +159,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
   }
 
-  Future<void> _saveSingle() async {
-    final l = AppLocalizations.of(context);
-    final path = _rendered;
-    if (path == null) return;
-    final ok = await widget.native.saveToPhotos(path);
-    if (mounted) showSnack(context, ok ? l.savedToPhotos : l.saveFailed);
-  }
-
   void _next() {
     final path = _rendered;
     if (path == null) return;
@@ -145,6 +167,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
         builder: (_) => SheetScreen(
           spec: widget.spec,
           photoPath: path,
+          sourcePath: widget.shots[_index],
+          beautyApplied: !_beauty.isNone,
           native: widget.native,
         ),
       ),
@@ -154,8 +178,23 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
+    final lang = langOf(context);
     final spec = widget.spec;
+
+    if (_rendered == null && _error == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l.procTitle)),
+        body: ProcessingView(
+          steps: [
+            l.procFace,
+            l.procLight,
+            _replaceBackground ? l.procBackground : l.procBackgroundKeep,
+            l.procCrop(formatMm(spec.widthMm), formatMm(spec.heightMm)),
+            l.procCheck,
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(l.reviewTitle)),
@@ -163,12 +202,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
         children: [
           const StepHeader(current: 1),
           Expanded(
-            child: ListView(
+            child: Stack(
+              children: [
+                ListView(
+              controller: _scroll,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               children: [
                 _PreviewWell(
                   spec: spec,
-                  rendered: _rendered,
+                  rendered: _showBefore && _beforePath != null ? _beforePath : _rendered,
                   busy: _busy,
                   error: _error,
                   shots: widget.shots,
@@ -180,6 +222,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     _process();
                   },
                 ),
+                if (_beforePath != null) ...[
+                  const SizedBox(height: 10),
+                  Center(
+                    child: SegmentedButton<bool>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(value: true, label: Text(l.beforeLabel)),
+                        ButtonSegment(value: false, label: Text(l.afterLabel)),
+                      ],
+                      selected: {_showBefore},
+                      onSelectionChanged: (v) => setState(() => _showBefore = v.first),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 if (_result != null)
                   _ChecksBanner(
@@ -192,7 +248,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   ),
                 if (isOfficialDocument(spec)) ...[
                   const SizedBox(height: 10),
-                  _NoRetouchBadge(text: l.noFaceEditBadge),
+                  _NoRetouchBadge(text: _beauty.isNone ? l.noFaceEditBadge : l.beautyLightBadge),
                 ],
                 const SizedBox(height: 14),
                 _TabBar(
@@ -201,6 +257,25 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
                 const SizedBox(height: 12),
                 _tabBody(l),
+              ],
+            ),
+                Positioned(
+                  top: 8,
+                  right: 12,
+                  child: IgnorePointer(
+                    ignoring: !_pinPreview,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 180),
+                      opacity: _pinPreview && _rendered != null ? 1 : 0,
+                      child: _PinnedPreview(
+                        path: _rendered,
+                        beforePath: _beforePath,
+                        busy: _busy,
+                        aspect: spec.widthMm / spec.heightMm,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -224,14 +299,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       icon: const Icon(Icons.refresh, size: 18),
                       label: Text(l.retake),
                       onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.download_outlined, size: 18),
-                      label: Text(l.saveSingle),
-                      onPressed: _rendered == null || _busy ? null : _saveSingle,
                     ),
                   ),
                 ],
@@ -324,6 +391,64 @@ class _ReviewScreenState extends State<ReviewScreen> {
           max: 0.6,
           onChanged: (v) => setState(() => _exposure = v),
           onChangeEnd: (_) => _process(),
+        );
+      case _Tab.beauty:
+        if (_level == EditLevel.strict && !_strictBeautyAccepted) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LockNote(text: l.beautyStrictWarning),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                  onPressed: () => setState(() => _strictBeautyAccepted = true),
+                  child: Text(l.beautyStrictAccept),
+                ),
+              ),
+            ],
+          );
+        }
+        Widget slider(String label, double value, BeautySettings Function(double) apply) => _SliderRow(
+              label: label,
+              value: value,
+              min: 0,
+              max: 1,
+              showPercent: true,
+              onChanged: (v) => setState(() => _beauty = apply(v)),
+              onChangeEnd: (_) => _process(),
+            );
+        return Column(
+          children: [
+            slider(l.beautySmooth, _beauty.smooth, (v) => _beauty.copyWith(smooth: v)),
+            slider(l.beautyBrighten, _beauty.brighten, (v) => _beauty.copyWith(brighten: v)),
+            slider(l.beautyEven, _beauty.even, (v) => _beauty.copyWith(even: v)),
+            slider(l.beautyShine, _beauty.shine, (v) => _beauty.copyWith(shine: v)),
+            slider(l.beautySharpen, _beauty.sharpen, (v) => _beauty.copyWith(sharpen: v)),
+            slider(l.beautyLips, _beauty.lips, (v) => _beauty.copyWith(lips: v)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(l.beautyNote, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _beauty = BeautySettings.none);
+                    _process();
+                  },
+                  child: Text(l.beautyOff),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _beauty = defaultBeautyFor(_level == EditLevel.strict ? EditLevel.standard : _level));
+                    _process();
+                  },
+                  child: Text(l.resetLabel),
+                ),
+              ],
+            ),
+          ],
         );
     }
   }
@@ -627,6 +752,7 @@ class _TabBar extends StatelessWidget {
       _Tab.background: l.tabBackground,
       _Tab.frame: l.tabFrame,
       _Tab.light: l.tabLight,
+      _Tab.beauty: l.tabBeauty,
     };
     return Container(
       padding: const EdgeInsets.all(4),
@@ -731,12 +857,14 @@ class _SliderRow extends StatelessWidget {
     required this.max,
     required this.onChanged,
     required this.onChangeEnd,
+    this.showPercent = false,
   });
 
   final String label;
   final double value;
   final double min;
   final double max;
+  final bool showPercent;
   final ValueChanged<double> onChanged;
   final ValueChanged<double> onChangeEnd;
 
@@ -745,7 +873,7 @@ class _SliderRow extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 96,
+          width: 116,
           child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ),
         Expanded(
@@ -757,6 +885,15 @@ class _SliderRow extends StatelessWidget {
             onChangeEnd: onChangeEnd,
           ),
         ),
+        if (showPercent)
+          SizedBox(
+            width: 34,
+            child: Text(
+              '${(value * 100).round()}',
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.muted),
+            ),
+          ),
       ],
     );
   }
@@ -786,6 +923,53 @@ class _NoRetouchBadge extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Small copy of the result, pinned while the sliders are in view.
+/// Press and hold to see the photo before correction.
+class _PinnedPreview extends StatefulWidget {
+  const _PinnedPreview({required this.path, required this.beforePath, required this.busy, required this.aspect});
+
+  final String? path;
+  final String? beforePath;
+  final bool busy;
+  final double aspect;
+
+  @override
+  State<_PinnedPreview> createState() => _PinnedPreviewState();
+}
+
+class _PinnedPreviewState extends State<_PinnedPreview> {
+  bool _holding = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final path = _holding && widget.beforePath != null ? widget.beforePath : widget.path;
+    const h = 150.0;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _holding = true),
+      onTapUp: (_) => setState(() => _holding = false),
+      onTapCancel: () => setState(() => _holding = false),
+      child: Container(
+        width: h * widget.aspect,
+        height: h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [BoxShadow(color: Color(0x400F2A30), blurRadius: 14, offset: Offset(0, 4))],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (path != null) Image.file(File(path), fit: BoxFit.cover, gaplessPlayback: true),
+            if (widget.busy)
+              const Center(child: SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.5))),
+          ],
+        ),
       ),
     );
   }
